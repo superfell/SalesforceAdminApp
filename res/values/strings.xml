@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Force Admin App</string>
+    
+    <string name="boot_1">Force.com Admin App</string>
+    <string name="boot_2">Authenticating</string>
+    <string name="boot_3">Please wait...</string>
+
 </resources>
