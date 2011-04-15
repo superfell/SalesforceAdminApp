@@ -11,6 +11,9 @@
 		android:layout_height="wrap_content"
 		android:hint="@string/search_hint"
 		android:lines="1"
+		android:maxLines="1"
+		android:inputType="textFilter"
+		android:imeOptions="actionSearch"
 		android:layout_margin="4dp"
 	/>
 	

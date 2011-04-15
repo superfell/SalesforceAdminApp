@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.net.Uri;
+
 /**
  * This class exposes all the API calls we want to make to Salesforce.com
  */
@@ -31,11 +33,9 @@ public class SalesforceApi extends Http {
 	}
 	
 	public static class User extends UserBasic {
-		public String username;
-		public String firstName;
-		public String lastName;
-		public String email;
-		public String profileId;
+		public String Username;
+		public String Email;
+		public String ProfileId;
 	}
 	
 	public static class UserResource {
@@ -43,8 +43,20 @@ public class SalesforceApi extends Http {
 		public List<UserBasic> recentItems;
 	}
 	
+	public static class UserQueryResult {
+		public int totalSize;
+		public boolean done;
+		public List<User> records;
+	}
+	
 	public UserResource getUserResource() throws IOException {
 		return getJson(instance.resolve("/services/data/v21.0/sobjects/user"), UserResource.class);
+	}
+	
+	public List<User> userSearch(String searchTerm, int limit) throws IOException {
+		String soql = "select id,name,username,email,profileId from user where username like '%" + searchTerm + "%' limit " + limit;
+		URI q = instance.resolve("/services/data/v21.0/query?q=" + Uri.encode(soql));
+		return getJson(q, UserQueryResult.class).records;
 	}
 	
 	protected <T> T getJson(URI uri, Class<T> responseClz) throws IOException {
