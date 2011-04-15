@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -24,6 +25,7 @@ public class UserAdmin extends ListActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+        getWindow().requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.user_admin);
 	}
 	
@@ -70,6 +72,11 @@ public class UserAdmin extends ListActivity {
 	private class UserListTask extends AsyncTask<Void, Void, SalesforceApi.UserResource> {
 
 		@Override
+		protected void onPreExecute() {
+			setProgress(100);
+		}
+
+		@Override
 		protected UserResource doInBackground(Void... params) {
 			try {
 				return salesforce.getUserResource();
@@ -84,6 +91,7 @@ public class UserAdmin extends ListActivity {
 
 		@Override
 		protected void onPostExecute(UserResource result) {
+			setProgress(0);
 			if (result != null)
 				bindUserList(result.recentItems);
 			// else	
