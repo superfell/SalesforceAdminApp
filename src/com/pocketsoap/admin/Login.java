@@ -53,7 +53,8 @@ public class Login extends Activity {
     // called when the webview see's our callback_uri try to get loaded.
     private void authDone(Uri callbackUri) {
     	// parse info out of fragment
-    	String frag = callbackUri.getFragment();
+    	Log.i("auth", "oauth done" + callbackUri);
+    	String frag = callbackUri.getEncodedFragment();
     	String [] params = frag.split("&");
     	Map<String, String> values = new HashMap<String,String>();
     	for (String p : params) {
@@ -103,5 +104,6 @@ public class Login extends Activity {
 	
     private WebView webview;
     
-    private static final String REF_TOKEN = "refTKn", AUTH_SERVER = "authServer";
+    static final String REF_TOKEN = "refTKn";
+	static final String AUTH_SERVER = "authServer";
 }

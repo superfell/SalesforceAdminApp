@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Boot extends Activity {
 
@@ -25,23 +26,27 @@ public class Boot extends Activity {
 		super.onCreate(state);
 		
         prefs = getSharedPreferences("a", MODE_PRIVATE);
-        if (!prefs.contains(REF_TOKEN)) {
+        if (!prefs.contains(Login.REF_TOKEN)) {
         	// no credentials stored, go straight to login.
-        	Intent i = new Intent(this, Login.class);
-        	startActivity(i);
-        	finish();
+        	startLogin();
         }
 
         setContentView(R.layout.boot);
     }
 
+	private void startLogin() {
+    	Intent i = new Intent(this, Login.class);
+    	startActivity(i);
+    	finish();
+	}
+	
 	@Override
 	public void onResume() {
 		super.onResume();
 		
 		// start validating the cached ref token.
 		TokenRefresher tr = new TokenRefresher();
-		tr.execute(prefs.getString(REF_TOKEN, null), prefs.getString(AUTH_SERVER, "https://login.salesforce.com"));
+		tr.execute(prefs.getString(Login.REF_TOKEN, null), prefs.getString(Login.AUTH_SERVER, "https://login.salesforce.com"));
 		
 	}
 	
@@ -72,16 +77,19 @@ public class Boot extends Activity {
 		}
 		
 		protected void onPostExecute(TokenResponse result) {
-			if (exception != null) 
-				showTokenError(exception);
+			if (exception != null || result.error != null) 
+				showTokenError(result, exception);
 			else
-			startAdminActivity(result);
+				startAdminActivity(result);
 		}
 	}
 
-	private void showTokenError(Exception ex) {
-		Log.i("x", ex.getMessage());
-		
+	private void showTokenError(TokenResponse res, Exception ex) {
+        Toast.makeText(
+                this, 
+                "authentication failed: " + res != null ? res.error_description : ex.getMessage(), 
+                Toast.LENGTH_LONG ).show();
+        startLogin();
 	}
 	
 	private void startAdminActivity(TokenResponse result) {
@@ -94,6 +102,8 @@ public class Boot extends Activity {
 	
     @JsonIgnoreProperties(ignoreUnknown=true)
 	static class TokenResponse {
+    	public String error;
+    	public String error_description;
         public String refresh_token;
         public String access_token;
         public String instance_url;
@@ -102,5 +112,4 @@ public class Boot extends Activity {
 	
     private SharedPreferences prefs;
     
-    private static final String REF_TOKEN = "refTKn", AUTH_SERVER = "authServer";
 }

@@ -5,20 +5,29 @@
     android:layout_height="fill_parent"
 >
 
+	<EditText
+		android:id="@+id/search_text"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:hint="@string/search_hint"
+		android:lines="1"
+	/>
+	
 	<ListView android:id="@id/android:list"
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent"
-				android:clickable="true"
-				android:smoothScrollbar="true" 		
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:clickable="true"
+		android:smoothScrollbar="true" 		
 	/>
 
      <TextView 
-				android:id="@id/android:empty"
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent"
-				android:gravity="center"
-				android:textStyle="bold"
-				android:text="loading..."/>
+		android:id="@id/android:empty"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:gravity="center"
+		android:textStyle="bold"
+		android:text="@string/loading"
+	/>
     
 </LinearLayout>
 
