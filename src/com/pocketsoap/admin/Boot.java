@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 public class Boot extends Activity {
 
@@ -23,7 +24,7 @@ public class Boot extends Activity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		
-        prefs = getPreferences(MODE_PRIVATE);
+        prefs = getSharedPreferences("a", MODE_PRIVATE);
         if (!prefs.contains(REF_TOKEN)) {
         	// no credentials stored, go straight to login.
         	Intent i = new Intent(this, Login.class);
@@ -44,7 +45,7 @@ public class Boot extends Activity {
 		
 	}
 	
-	private static class TokenRefresher extends AsyncTask<String, Void, TokenResponse> {
+	private class TokenRefresher extends AsyncTask<String, Void, TokenResponse> {
 
 		@Override
 		protected TokenResponse doInBackground(String... params) {
@@ -57,10 +58,6 @@ public class Boot extends Activity {
 		}
 		
 		private Exception exception;
-		
-		public Exception getException() {
-			return exception;
-		}
 		
 		private TokenResponse refreshToken(String token, String authHost) throws URISyntaxException, ClientProtocolException, IOException {
 			URI tkn = new URI(authHost).resolve("/services/oauth2/token"); 
@@ -75,9 +72,24 @@ public class Boot extends Activity {
 		}
 		
 		protected void onPostExecute(TokenResponse result) {
-			// save info,
-			// show admin activity
-	    }
+			if (exception != null) 
+				showTokenError(exception);
+			else
+			startAdminActivity(result);
+		}
+	}
+
+	private void showTokenError(Exception ex) {
+		Log.i("x", ex.getMessage());
+		
+	}
+	
+	private void startAdminActivity(TokenResponse result) {
+		Intent i = new Intent(this, UserAdmin.class);
+		i.putExtra("SID", result.access_token);
+		i.putExtra("SVR", result.instance_url);
+		startActivity(i);
+		finish();
 	}
 	
     @JsonIgnoreProperties(ignoreUnknown=true)
