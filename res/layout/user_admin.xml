@@ -11,6 +11,7 @@
 		android:layout_height="wrap_content"
 		android:hint="@string/search_hint"
 		android:lines="1"
+		android:layout_margin="4dp"
 	/>
 	
 	<ListView android:id="@id/android:list"

@@ -3,13 +3,21 @@ package com.pocketsoap.admin;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
+import com.pocketsoap.admin.SalesforceApi.UserBasic;
 import com.pocketsoap.admin.SalesforceApi.UserResource;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 public class UserAdmin extends ListActivity {
 
@@ -32,7 +40,29 @@ public class UserAdmin extends ListActivity {
 			e.printStackTrace();
 		}
 		UserListTask t = new UserListTask();
-		t.execute(null);
+		t.execute();
+	}
+	
+	private void bindUserList(List<UserBasic> users) {
+		UserAdapter a = new UserAdapter(this, R.layout.user_row, users);
+		this.setListAdapter(a);
+	}
+	
+	private class UserAdapter extends ArrayAdapter<UserBasic> {
+
+		public UserAdapter(Context context, int textViewResourceId, List<UserBasic> objects) {
+			super(context, textViewResourceId, objects);
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if (convertView == null)
+				convertView = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.user_row, null);
+			UserBasic u = getItem(position);
+			TextView tv = (TextView)convertView.findViewById(R.id.user_name);
+			tv.setText(u.Name);
+			return convertView;
+		}
 	}
 	
 	private SalesforceApi salesforce;
@@ -54,8 +84,10 @@ public class UserAdmin extends ListActivity {
 
 		@Override
 		protected void onPostExecute(UserResource result) {
-			for (SalesforceApi.UserBasic u : result.recentItems)
-				Log.i("f", u.Name + "\t " + u.Id);
+			if (result != null)
+				bindUserList(result.recentItems);
+			// else	
+				// show error
 		}
 	}
 }
