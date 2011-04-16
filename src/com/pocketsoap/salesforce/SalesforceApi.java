@@ -1,4 +1,4 @@
-package com.pocketsoap.admin;
+package com.pocketsoap.salesforce;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,21 +21,20 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Xml;
 
-import com.pocketsoap.http.Http;
 
 /**
  * This class exposes all the API calls we want to make to Salesforce.com
  */
 public class SalesforceApi extends Http {
 
-	static final String EXTRA_SERVER = "SVR";
-	static final String EXTRA_SID = "SID";
+	public static final String EXTRA_SERVER = "SVR";
+	public static final String EXTRA_SID = "SID";
 
-	SalesforceApi(Intent i) throws URISyntaxException {
+	public SalesforceApi(Intent i) throws URISyntaxException {
 		this(i.getStringExtra(EXTRA_SID), new URI(i.getStringExtra(EXTRA_SERVER)));
 	}
 	
-	SalesforceApi(String sid, URI instance) {
+	public SalesforceApi(String sid, URI instance) {
 		this.sessionId = sid;
 		this.instance = instance;
 		this.restRoot = instance.resolve("/services/data/v21.0/");

@@ -8,17 +8,21 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pocketsoap.admin.ApiAsyncTask.ActivityCallbacks;
-import com.pocketsoap.admin.SalesforceApi.User;
+import com.pocketsoap.salesforce.SalesforceApi;
+import com.pocketsoap.salesforce.SalesforceApi.User;
 
 /** Activity that is the user detail page, where they can do a reset password, toggle isActive etc */
 public class UserDetailActivity extends Activity implements ActivityCallbacks {
@@ -50,34 +54,35 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 		isActive.setOnClickListener(new ToggleActive());
 	}
 	
+	private Button resetPasswordButton;
+	private CheckBox isActive;
+	private SalesforceApi salesforce;
+	private User user;
+
 	private void setText(int textId, String txt) {
 		TextView tv = (TextView)findViewById(textId);
 		tv.setText(txt);
 	}
-	
-	public void resetPasswordClicked(View v) {
-		ResetPasswordTask t = new ResetPasswordTask(this);
-		t.execute(user.Id);
-	}
-	
+    
 	public void showError(Exception ex) {
         Toast.makeText(
                 this, 
-                "api request failed: " + ex.getMessage(), 
+                getString(R.string.api_failed, ex.getMessage()),
                 Toast.LENGTH_LONG ).show();
 	}
 	
 	public void setBusy(boolean b) {
 		setProgressBarIndeterminateVisibility(b);
 	}
-	
-	private Button resetPasswordButton;
-	private CheckBox isActive;
-	private SalesforceApi salesforce;
-	private User user;
-	
-	private class ToggleActive implements OnClickListener {
 
+	/** called when the user taps the reset password button */
+	public void resetPasswordClicked(View v) {
+		ResetPasswordTask t = new ResetPasswordTask(this);
+		t.execute(user.Id);
+	}
+
+	/** called when the user taps the IsActive checkbox */
+	private class ToggleActive implements OnClickListener {
 		public void onClick(View v) {
 			SetActiveTask t = new SetActiveTask(UserDetailActivity.this);
 			t.execute(!user.IsActive);

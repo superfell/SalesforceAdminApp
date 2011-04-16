@@ -1,4 +1,4 @@
-package com.pocketsoap.admin;
+package com.pocketsoap.salesforce;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

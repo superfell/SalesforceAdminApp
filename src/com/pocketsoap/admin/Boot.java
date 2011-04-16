@@ -11,29 +11,32 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import com.pocketsoap.http.Http;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.pocketsoap.salesforce.Http;
+import com.pocketsoap.salesforce.SalesforceApi;
+
+/** This is the Boot/Loader activity it, checks for a saved refresh token, generates a sid, or if that fails, starts the oauth flow */
 public class Boot extends Activity {
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		
-        prefs = getSharedPreferences("a", MODE_PRIVATE);
-        if (!prefs.contains(Login.REF_TOKEN)) {
-        	// no credentials stored, go straight to login.
+        tokenStore = new RefreshTokenStore(this);
+        if (!tokenStore.hasSavedToken()) {
+        	// no refresh token stored, go straight to login.
         	startLogin();
         }
-
+        // otherwise show the boot screen while we validate the refresh token
         setContentView(R.layout.boot);
     }
+
+    private RefreshTokenStore tokenStore;
 
 	private void startLogin() {
     	Intent i = new Intent(this, Login.class);
@@ -44,13 +47,12 @@ public class Boot extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		
 		// start validating the cached ref token.
 		TokenRefresher tr = new TokenRefresher();
-		tr.execute(prefs.getString(Login.REF_TOKEN, null), prefs.getString(Login.AUTH_SERVER, "https://login.salesforce.com"));
-		
+		tr.execute(tokenStore.getRefreshToken(), tokenStore.getAuthServer());
 	}
-	
+
+	/** background task that calls the OAuth Token service to get a new access token using the refresh token */
 	private class TokenRefresher extends AsyncTask<String, Void, TokenResponse> {
 
 		@Override
@@ -78,22 +80,23 @@ public class Boot extends Activity {
 		}
 		
 		protected void onPostExecute(TokenResponse result) {
-			if (exception != null || result.error != null) 
+			if (exception != null || result.error != null) {
 				showTokenError(result, exception);
-			else
-				startAdminActivity(result);
+			} else {
+				startUserListActivity(result);
+			}
 		}
 	}
 
 	private void showTokenError(TokenResponse res, Exception ex) {
         Toast.makeText(
                 this, 
-                "authentication failed: " + res != null ? res.error_description : ex.getMessage(), 
+                getString(R.string.auth_failed, res != null ? res.error_description : ex.getMessage()), 
                 Toast.LENGTH_LONG ).show();
         startLogin();
 	}
 	
-	private void startAdminActivity(TokenResponse result) {
+	private void startUserListActivity(TokenResponse result) {
 		Intent i = new Intent(this, UserListActivity.class);
 		i.putExtra(SalesforceApi.EXTRA_SID, result.access_token);
 		i.putExtra(SalesforceApi.EXTRA_SERVER, result.instance_url);
@@ -110,7 +113,4 @@ public class Boot extends Activity {
         public String instance_url;
         public String id;
 	}
-	
-    private SharedPreferences prefs;
-    
 }

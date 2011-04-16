@@ -4,10 +4,10 @@ package com.pocketsoap.admin;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pocketsoap.salesforce.SalesforceApi;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +16,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+/** the oauth web flow, we launch a contained webview, start the oauth flow, and wait until we see the redirect to the callback uri */
 public class Login extends Activity {
 	
 	private static final String TAG = "Login";
@@ -38,6 +39,8 @@ public class Login extends Activity {
         webview.setWebViewClient(new LoginWebViewClient());
     }
 
+    private WebView webview;
+
     @Override
     public void onResume() {
     	super.onResume();
@@ -53,7 +56,6 @@ public class Login extends Activity {
     // called when the webview see's our callback_uri try to get loaded.
     private void authDone(Uri callbackUri) {
     	// parse info out of fragment
-    	Log.i("auth", "oauth done" + callbackUri);
     	String frag = callbackUri.getEncodedFragment();
     	String [] params = frag.split("&");
     	Map<String, String> values = new HashMap<String,String>();
@@ -62,30 +64,27 @@ public class Login extends Activity {
     		if (nv.length == 2)
     			values.put(nv[0], Uri.decode(nv[1]));
     	}
-    	// save in prefs
-    	SharedPreferences sp = this.getSharedPreferences("a", MODE_PRIVATE);
-    	Editor spe = sp.edit();
-    	spe.putString(REF_TOKEN, values.get("refresh_token"));
-    	spe.putString(AUTH_SERVER, DEFAULT_AUTH_HOST);	// TODO
-    	spe.commit();
+
+    	// save the token, so we don't have to login next time around
+    	new RefreshTokenStore(this).saveToken(values.get("refresh_token"), DEFAULT_AUTH_HOST);
     	
-    	// launch admin activity
+    	// launch the user list activity
     	Intent i = new Intent(this, UserListActivity.class);
-    	i.putExtra("SID", values.get("access_token"));
-    	i.putExtra("SVR", values.get("instance_url"));
+    	i.putExtra(SalesforceApi.EXTRA_SID, values.get("access_token"));
+    	i.putExtra(SalesforceApi.EXTRA_SERVER, values.get("instance_url"));
     	startActivity(i);
     	finish();
     }
-    
+
+    /** routes progress callbacks from the webview, to the progress bar in the activity title */
 	class ProgressChromeClient extends WebChromeClient {
-	    
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
-            Log.d(TAG, "onProgressChanged : " + view + " : " + newProgress);
             setProgress(newProgress * 100);
         }
 	}
-	
+
+	/** watches for the completion callback URI */
 	class LoginWebViewClient extends WebViewClient {
         
         @Override
@@ -101,9 +100,4 @@ public class Login extends Activity {
             return isDone;
         }
 	}
-	
-    private WebView webview;
-    
-    static final String REF_TOKEN = "refTKn";
-	static final String AUTH_SERVER = "authServer";
 }

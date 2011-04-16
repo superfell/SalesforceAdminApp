@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -22,8 +24,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.pocketsoap.admin.SalesforceApi.User;
+import com.pocketsoap.salesforce.SalesforceApi;
+import com.pocketsoap.salesforce.SalesforceApi.User;
 
+/** the user list, this defaults to showing the recent users, and allows for a search */
 public class UserListActivity extends ListActivity implements OnEditorActionListener, ApiAsyncTask.ActivityCallbacks {
 
 	@Override
@@ -51,10 +55,30 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		}
 	}
 	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    	switch (item.getItemId()) {
+    		case R.id.menu_logout:
+    			new RefreshTokenStore(this).clearSavedData();
+    			Intent i = new Intent(this, Login.class);
+    			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    			startActivity(i);
+    			finish();
+    	}
+    	return super.onMenuItemSelected(featureId, item);
+    }
+    
 	public void showError(Exception ex) {
         Toast.makeText(
                 this, 
-                "api request failed: " + ex.getMessage(), 
+                getString(R.string.api_failed, ex.getMessage()),
                 Toast.LENGTH_LONG ).show();
 	}
 	
@@ -64,6 +88,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
+		// the user tapped a row in the list, serialize up the data for that row, and star the detail page activity
 		Intent d = new Intent(this, UserDetailActivity.class);
 		d.putExtras(getIntent());
 		try {
@@ -74,11 +99,13 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		startActivity(d);
 	}
 
+	// build an adapter for this list of users, so they can be rendered in the list view.
 	private <T> void bindUserList(List<User> users) {
 		UserListAdapter a = new UserListAdapter(this, R.layout.user_row, users);
 		this.setListAdapter(a);
 	}
 	
+	// Adapter/Binder that renders the list view rows.
 	private class UserListAdapter extends ArrayAdapter<User> {
 
 		public UserListAdapter(Context context, int textViewResourceId, List<User> objects) {

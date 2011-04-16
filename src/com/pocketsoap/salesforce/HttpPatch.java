@@ -1,4 +1,4 @@
-package com.pocketsoap.http;
+package com.pocketsoap.salesforce;
 
 import java.net.URI;
 

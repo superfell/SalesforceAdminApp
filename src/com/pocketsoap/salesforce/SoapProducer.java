@@ -1,4 +1,4 @@
-package com.pocketsoap.admin;
+package com.pocketsoap.salesforce;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,6 +9,7 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.util.Xml;
 
+/** base class for writing out a salesforce soap request with the session & email headers set */
 abstract class SoapProducer implements ContentProducer {
 
 	static final String SOAP_NS = "http://schemas.xmlsoap.org/soap/envelope/";
