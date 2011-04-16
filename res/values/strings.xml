@@ -13,14 +13,20 @@
 	<string name="search_hint">Search by username</string>
 
 	<!--  detail view -->
+	<string name="user_title">Title</string>
+	<string name="user_username">Username</string>
+
+	<string name="contact_header">Contact</string>
+	<string name="contact_phone">Phone</string>
+	<string name="contact_mobile">Mobile Phone</string>
+	<string name="contact_email">Email</string>
+
+	<string name="action_header">Actions</string>
 	<string name="api_failed">Api error: %s</string>
 	<string name="reset_pwd">Reset Password</string>
 	<string name="password_was_reset">Password reset complete</string>
 	<string name="enabled">Is Active</string>
 	<string name="active_updated">Active state updated</string>
-
-	<string name="title">Title : %s</string>
-	<string name="username">Username : %s</string>
 	
 	<!-- menu -->
 	<string name="logout">Logout</string>

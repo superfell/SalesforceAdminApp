@@ -36,8 +36,12 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 		
 		setContentView(R.layout.user_detail);
 		setText(R.id.detail_name, user.Name);
-		setText(R.id.detail_username, getString(R.string.username, user.Username));
-		setText(R.id.detail_title, getString(R.string.title, user.Title == null ? "" : user.Title));
+		setText(R.id.detail_username, user.Username);
+		setText(R.id.detail_title, user.Title);
+		
+		setText(R.id.contact_email, user.Email);
+		setText(R.id.contact_phone, user.Phone);
+		setText(R.id.contact_mobile, user.MobilePhone);
 		
 		resetPasswordButton = (Button)findViewById(R.id.detail_reset_pwd);
 		isActive = (CheckBox)findViewById(R.id.detail_enabled);

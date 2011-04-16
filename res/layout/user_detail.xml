@@ -22,50 +22,168 @@
 			android:textSize="21sp"
 		/>
 	
-		<TextView
-			android:id="@+id/detail_title"
-			android:layout_width="wrap_content"
+		<TableLayout
+			android:id="@+id/detail_table"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/detail_name"
-			android:textColor="@color/list_text"
 			android:layout_margin="5dp"
-		/>
-		
-		<TextView
-			android:id="@+id/detail_username"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/detail_title"
-			android:textColor="@color/list_text"
-			android:layout_margin="5dp"
+		>
+			<TableRow>
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:paddingRight="5dp"
+					android:text="@string/user_title"
+				/>
+				<TextView
+					android:id="@+id/detail_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/list_text"
+				/>
+			</TableRow>
+			<TableRow>
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:paddingRight="5dp"
+					android:text="@string/user_username"
+				/>
+				<TextView
+					android:id="@+id/detail_username"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/list_text"
+				/>
+			</TableRow>
+		</TableLayout>
+
+		<!-- padding -->		
+		<ImageView
+			android:layout_height="5dp"
+			android:layout_width="5dp"
+			android:layout_below="@id/detail_table"
 		/>
 	</RelativeLayout>
 	
 	<RelativeLayout
-	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:id="@+id/detail_contact_section"
 	  android:background="@drawable/detail_body_background"
 	  android:layout_below="@id/detail_header_section"
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content">
-		
-		<CheckBox
-			android:id="@+id/detail_enabled"
-			android:layout_width="wrap_content"
+
+		<TextView
+			android:id="@+id/detail_contact_header"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
+			android:background="@color/header_background"
+			android:textColor="@color/header_text"
+			android:text="@string/contact_header"
+			android:padding="3dp"
+		/>
+
+		<TableLayout
+			android:id="@+id/contact_table"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/detail_contact_header"
 			android:layout_margin="5dp"
-			android:text="@string/enabled"
+		>
+			<TableRow>
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/contact_email"
+					android:paddingRight="5dp"
+				/>
+				<TextView
+					android:id="@+id/contact_email"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+				/>
+			</TableRow>
+			<TableRow>
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/contact_phone"
+					android:paddingRight="5dp"
+				/>
+				<TextView
+					android:id="@+id/contact_phone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+				/>
+			</TableRow>
+			<TableRow>
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/contact_mobile"
+					android:paddingRight="5dp"
+				/>
+				<TextView
+					android:id="@+id/contact_mobile"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+				/>
+			</TableRow>
+		</TableLayout>
+		
+		<!-- padding -->		
+		<ImageView
+			android:layout_height="5dp"
+			android:layout_width="5dp"
+			android:layout_below="@id/contact_table"
 		/>
 		
-		<Button
-			android:id="@+id/detail_reset_pwd"
-			android:layout_width="wrap_content"
+	</RelativeLayout>
+	
+	
+	<RelativeLayout
+	  android:background="@drawable/detail_body_background"
+	  android:layout_below="@id/detail_contact_section"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content">
+		
+		<TextView
+			android:id="@+id/detail_action_header"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:padding="12dp"
-			android:text="@string/reset_pwd"
-			android:onClick="resetPasswordClicked"
-			android:layout_margin="5dp"
-			android:layout_below="@id/detail_enabled"
+			android:background="@color/header_background"
+			android:textColor="@color/header_text"
+			android:text="@string/action_header"
+			android:padding="3dp"
 		/>
+		
+		<TableLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/detail_action_header"
+			android:stretchColumns="0,1"
+		>
+			<TableRow>
+				<CheckBox
+					android:id="@+id/detail_enabled"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_margin="5dp"
+					android:text="@string/enabled"
+				/>
+				
+				<Button
+					android:id="@+id/detail_reset_pwd"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:padding="12dp"
+					android:text="@string/reset_pwd"
+					android:onClick="resetPasswordClicked"
+					android:layout_margin="5dp"
+				/>
+			</TableRow>
+		</TableLayout>
 	
 	</RelativeLayout>
 	
