@@ -33,11 +33,9 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	@Override
 	public void onResume() {
 		super.onResume();
-		search.setText("");
 		try {
 			salesforce = new SalesforceApi(getIntent());
-			RecentUserListTask t = new RecentUserListTask(this);
-			t.execute();
+			startFetchUsers(search.getText().toString());
 		} catch (URISyntaxException e) {
 			showError(e);
 		}
@@ -118,24 +116,6 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		}
 	}
 	
-	/** background task to fetch the recent users list, and then bind it to the UI */
-	private class RecentUserListTask extends ApiAsyncTask<Void, List<User>> {
-
-		RecentUserListTask(ActivityCallbacks activity) {
-			super(activity);
-		}
-		
-		@Override
-		protected List<User> doApiCall(Void ... params) throws IOException {
-			return salesforce.getRecentUsers();
-		}
-		
-		@Override
-		protected void handleResult(List<User> result) {
-			bindUserList(result);
-		}
-	}
-
 	/** background task to run the search query, and bind the results to the UI */
 	private class UserSearchTask extends ApiAsyncTask<String, List<User>> {
 
@@ -145,7 +125,10 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		
 		@Override
 		protected List<User> doApiCall(String... params) throws Exception {
-			return salesforce.userSearch(params[0], 25);
+			String search = params[0];
+			if (search == null || search.length() == 0)
+				return salesforce.getRecentUsers();
+			return salesforce.userSearch(search, 25);
 		}
 
 		@Override
@@ -154,10 +137,14 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		}
 	}
 	
+	protected void startFetchUsers(String searchTerm) {
+		UserSearchTask t = new UserSearchTask(this);
+		t.execute(searchTerm);
+	}
+	
 	/** called when the user clicks the search button or enter on the keyboard */
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		UserSearchTask t = new UserSearchTask(this);
-		t.execute(v.getText().toString());
+		startFetchUsers(v.getText().toString());
 		return true;
 	}
 }
