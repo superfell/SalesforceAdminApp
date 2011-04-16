@@ -43,7 +43,7 @@ public class SalesforceApi extends Http {
 		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
 	}
 	
-	private static final String USER_QUERY = "select id,name,username,email,title,mobilePhone,phone,smallPhotoUrl,isActive from user ";
+	private static final String USER_QUERY = "select id,name,username,email,title,mobilePhone,phone,isActive from user ";
 
 	/** @return User details about the recently accessed users, or a default list if there are no recents */
 	public List<User> getRecentUsers() throws IOException {
@@ -129,6 +129,6 @@ public class SalesforceApi extends Http {
 	
 	protected void handleErrorResponse(HttpResponse resp) throws IOException {
 		List<Error> errors = mapper.readValue(resp.getEntity().getContent(), new TypeReference<List<Error>>() {});
-		throw new IOException(errors.get(0).errorMessage);
+		throw new IOException(errors.get(0).message);
 	}
 }
