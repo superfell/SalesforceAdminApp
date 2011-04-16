@@ -11,4 +11,10 @@
 	<string name="search_hint">Search by username</string>
 
 	<string name="reset_pwd">Reset Password</string>
+	<string name="password_was_reset">Password reset complete</string>
+	<string name="enabled">Is Active</string>
+	<string name="active_updated">Active state updated</string>
+
+	<string name="title">Title : %s</string>
+	<string name="username">Username : %s</string>
 </resources>

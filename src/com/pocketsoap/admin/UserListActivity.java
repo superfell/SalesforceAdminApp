@@ -9,7 +9,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -25,38 +24,44 @@ import android.widget.Toast;
 
 import com.pocketsoap.admin.SalesforceApi.User;
 
-public class UserListActivity extends ListActivity implements OnEditorActionListener {
-
-	private SalesforceApi salesforce;
+public class UserListActivity extends ListActivity implements OnEditorActionListener, ApiAsyncTask.ActivityCallbacks {
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
         getWindow().requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.user_admin);
-		EditText search = (EditText)findViewById(R.id.search_text);
+		search = (EditText)findViewById(R.id.search_text);
 		search.setOnEditorActionListener(this);
 	}
-	
+
+	private SalesforceApi salesforce;
+	private EditText search;
+
 	@Override
 	public void onResume() {
 		super.onResume();
+		search.setText("");
 		try {
 			salesforce = new SalesforceApi(getIntent());
-			RecentUserListTask t = new RecentUserListTask();
+			RecentUserListTask t = new RecentUserListTask(this);
 			t.execute();
 		} catch (URISyntaxException e) {
 			showError(e);
 		}
 	}
 	
-	private void showError(Exception ex) {
+	public void showError(Exception ex) {
         Toast.makeText(
                 this, 
                 "api request failed: " + ex.getMessage(), 
                 Toast.LENGTH_LONG ).show();
 	}
 	
+	public void setBusy(boolean b) {
+		setProgressBarIndeterminateVisibility(b);
+	}
+
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Intent d = new Intent(this, UserDetailActivity.class);
@@ -98,42 +103,13 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		}
 	}
 	
-	/** base class for doing background API calls, and updating the UI with results, standardized error handling */
-	private abstract class ApiAsyncTask<ParamType, ResultType> extends AsyncTask<ParamType, Void, ResultType> {
-
-		private Exception exception;
-		
-		@Override
-		protected void onPreExecute() {
-			setProgress(100);
-		}
-		
-		@Override
-		protected final ResultType doInBackground(ParamType... params) {
-			try {
-				return doApiCall(params);
-			} catch (Exception ex) {
-				exception = ex;
-			}
-			return null;
-		}
-
-		protected abstract ResultType doApiCall(ParamType ... params) throws Exception;
-		protected abstract void handleResult(ResultType result);
-		
-		@Override
-		protected final void onPostExecute(ResultType result) {
-			setProgress(0);
-			if (result != null)
-				handleResult(result);
-			else	
-				showError(exception);
-		}
-	}
-	
 	/** background task to fetch the recent users list, and then bind it to the UI */
 	private class RecentUserListTask extends ApiAsyncTask<Void, List<User>> {
 
+		RecentUserListTask(ActivityCallbacks activity) {
+			super(activity);
+		}
+		
 		@Override
 		protected List<User> doApiCall(Void ... params) throws IOException {
 			return salesforce.getRecentUsers();
@@ -148,9 +124,13 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	/** background task to run the search query, and bind the results to the UI */
 	private class UserSearchTask extends ApiAsyncTask<String, List<User>> {
 
+		UserSearchTask(ActivityCallbacks activity) {
+			super(activity);
+		}
+		
 		@Override
 		protected List<User> doApiCall(String... params) throws Exception {
-			return salesforce.userSearch(params[0], 25);
+			return salesforce.usernameSearch(params[0], 25);
 		}
 
 		@Override
@@ -161,7 +141,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	
 	/** called when the user clicks the search button or enter on the keyboard */
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		UserSearchTask t = new UserSearchTask();
+		UserSearchTask t = new UserSearchTask(this);
 		t.execute(v.getText().toString());
 		return true;
 	}

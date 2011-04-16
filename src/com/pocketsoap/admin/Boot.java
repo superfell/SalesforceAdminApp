@@ -11,6 +11,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import com.pocketsoap.http.Http;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -71,7 +73,7 @@ public class Boot extends Activity {
 			params.add(new BasicNameValuePair("refresh_token", token));
 			params.add(new BasicNameValuePair("format", "json"));
 			params.add(new BasicNameValuePair("client_id", Login.CLIENT_ID));
-			TokenResponse tr = http.postWithJsonResponse(tkn, params, TokenResponse.class);
+			TokenResponse tr = http.postWithJsonResponse(tkn, params, null, TokenResponse.class);
 			return tr;
 		}
 		
