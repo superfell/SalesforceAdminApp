@@ -43,7 +43,7 @@
 					android:textColor="@color/list_text"
 				/>
 			</TableRow>
-			<TableRow>
+			<TableRow android:layout_marginTop="5dp">
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -102,9 +102,10 @@
 					android:id="@+id/contact_email"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:autoLink="email"
 				/>
 			</TableRow>
-			<TableRow>
+			<TableRow android:layout_marginTop="10dp">
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -115,9 +116,10 @@
 					android:id="@+id/contact_phone"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:autoLink="phone"
 				/>
 			</TableRow>
-			<TableRow>
+			<TableRow android:layout_marginTop="10dp">
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -128,6 +130,22 @@
 					android:id="@+id/contact_mobile"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:autoLink="phone"
+				/>
+			</TableRow>
+			<TableRow android:layout_marginTop="10dp">
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/contact_mobile_text"
+					android:paddingRight="5dp"
+				/>
+				<TextView
+					android:id="@+id/contact_mobile_text"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:bufferType="spannable"
+					android:linksClickable="true"
 				/>
 			</TableRow>
 		</TableLayout>

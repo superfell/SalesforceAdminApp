@@ -8,6 +8,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.*;
+import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -42,7 +45,11 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 		setText(R.id.contact_email, user.Email);
 		setText(R.id.contact_phone, user.Phone);
 		setText(R.id.contact_mobile, user.MobilePhone);
-		
+		if (user.MobilePhone != null && user.MobilePhone.length() > 0) {
+			SpannableStringBuilder b = new SpannableStringBuilder(user.MobilePhone);
+			b.setSpan(new URLSpan("smsto:" + user.MobilePhone), 0, user.MobilePhone.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			setText(R.id.contact_mobile_text, b).setMovementMethod(LinkMovementMethod.getInstance());
+		}
 		resetPasswordButton = (Button)findViewById(R.id.detail_reset_pwd);
 		isActive = (CheckBox)findViewById(R.id.detail_enabled);
 		isActive.setChecked(user.IsActive);
@@ -54,9 +61,10 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 	private SalesforceApi salesforce;
 	private User user;
 
-	private void setText(int textId, String txt) {
+	private TextView setText(int textId, CharSequence txt) {
 		TextView tv = (TextView)findViewById(textId);
 		tv.setText(txt);
+		return tv;
 	}
     
 	public void showError(Exception ex) {

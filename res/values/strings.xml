@@ -18,7 +18,8 @@
 
 	<string name="contact_header">Contact</string>
 	<string name="contact_phone">Phone</string>
-	<string name="contact_mobile">Mobile Phone</string>
+	<string name="contact_mobile">Mobile (Call)</string>
+	<string name="contact_mobile_text">Mobile (Text)</string>
 	<string name="contact_email">Email</string>
 
 	<string name="action_header">Actions</string>
