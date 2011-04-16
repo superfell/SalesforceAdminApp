@@ -10,13 +10,24 @@
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content">
 
+		<ImageView
+			android:id="@+id/detail_photo"
+			android:layout_width="64dp"
+			android:layout_height="64dp"
+			android:layout_margin="5dp"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentLeft="true"
+			android:src="@drawable/ic_contact_picture"
+		/>
+		
 		<TextView
 			android:id="@+id/detail_name"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="5dp"
 			android:layout_alignParentTop="true"
-			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
+			android:layout_toRightOf="@id/detail_photo"
 			android:textColor="@color/list_text"
 			android:textStyle="bold"
 			android:textSize="21sp"
@@ -26,7 +37,7 @@
 			android:id="@+id/detail_table"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/detail_name"
+			android:layout_below="@id/detail_photo"
 			android:layout_margin="5dp"
 		>
 			<TableRow>
