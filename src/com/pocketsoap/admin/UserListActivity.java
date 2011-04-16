@@ -1,15 +1,16 @@
 package com.pocketsoap.admin;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +18,14 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.pocketsoap.admin.SalesforceApi.User;
 
-public class UserAdmin extends ListActivity implements OnEditorActionListener {
+public class UserListActivity extends ListActivity implements OnEditorActionListener {
 
 	private SalesforceApi salesforce;
 
@@ -39,17 +41,13 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		String sid = getIntent().getStringExtra("SID");
-		String svr = getIntent().getStringExtra("SVR");
-		
 		try {
-			salesforce = new SalesforceApi(sid, new URI(svr));
+			salesforce = new SalesforceApi(getIntent());
+			RecentUserListTask t = new RecentUserListTask();
+			t.execute();
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			showError(e);
 		}
-		RecentUserListTask t = new RecentUserListTask();
-		t.execute();
 	}
 	
 	private void showError(Exception ex) {
@@ -59,6 +57,18 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
                 Toast.LENGTH_LONG ).show();
 	}
 	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent d = new Intent(this, UserDetailActivity.class);
+		d.putExtras(getIntent());
+		try {
+			d.putExtra(UserDetailActivity.EXTRA_USER_JSON, new ObjectMapper().writeValueAsString(v.getTag()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		startActivity(d);
+	}
+
 	private <T> void bindUserList(List<User> users) {
 		UserListAdapter a = new UserListAdapter(this, R.layout.user_row, users);
 		this.setListAdapter(a);
@@ -78,7 +88,7 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 			setText(convertView, R.id.user_name, u.Name);
 			setText(convertView, R.id.user_username, u.Username);
 			setText(convertView, R.id.user_title, u.Title);
-			Log.i("u", "title:" + u.Title);
+			convertView.setTag(u);
 			return convertView;
 		}
 		
@@ -88,6 +98,7 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 		}
 	}
 	
+	/** base class for doing background API calls, and updating the UI with results, standardized error handling */
 	private abstract class ApiAsyncTask<ParamType, ResultType> extends AsyncTask<ParamType, Void, ResultType> {
 
 		private Exception exception;
@@ -120,7 +131,7 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 		}
 	}
 	
-	/** background task to fetch teh recent users list, and then bind it to the UI */
+	/** background task to fetch the recent users list, and then bind it to the UI */
 	private class RecentUserListTask extends ApiAsyncTask<Void, List<User>> {
 
 		@Override
@@ -148,6 +159,7 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 		}
 	}
 	
+	/** called when the user clicks the search button or enter on the keyboard */
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		UserSearchTask t = new UserSearchTask();
 		t.execute(v.getText().toString());

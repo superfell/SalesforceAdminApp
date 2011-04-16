@@ -23,7 +23,9 @@
 
         <activity android:name=".Login" />
 
-        <activity android:name=".UserAdmin" />
+        <activity android:name=".UserListActivity" />
+
+        <activity android:name=".UserDetailActivity" />
 
     </application>
 

@@ -92,9 +92,9 @@ public class Boot extends Activity {
 	}
 	
 	private void startAdminActivity(TokenResponse result) {
-		Intent i = new Intent(this, UserAdmin.class);
-		i.putExtra("SID", result.access_token);
-		i.putExtra("SVR", result.instance_url);
+		Intent i = new Intent(this, UserListActivity.class);
+		i.putExtra(SalesforceApi.EXTRA_SID, result.access_token);
+		i.putExtra(SalesforceApi.EXTRA_SERVER, result.instance_url);
 		startActivity(i);
 		finish();
 	}

@@ -2,10 +2,12 @@ package com.pocketsoap.admin;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Intent;
 import android.net.Uri;
 
 /**
@@ -13,6 +15,13 @@ import android.net.Uri;
  */
 public class SalesforceApi extends Http {
 
+	static final String EXTRA_SERVER = "SVR";
+	static final String EXTRA_SID = "SID";
+
+	SalesforceApi(Intent i) throws URISyntaxException {
+		this(i.getStringExtra(EXTRA_SID), new URI(i.getStringExtra(EXTRA_SERVER)));
+	}
+	
 	SalesforceApi(String sid, URI instance) {
 		this.sessionId = sid;
 		this.instance = instance;
@@ -41,6 +50,7 @@ public class SalesforceApi extends Http {
 		public String Title;
 		public String MobilePhone;
 		public String SmallPhotoUrl;
+		public boolean IsActive;
 	}
 	
 	public static class UserResource {
@@ -58,7 +68,7 @@ public class SalesforceApi extends Http {
 		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
 	}
 	
-	private static final String USER_QUERY = "select id,name,username,email,profileId,title,mobilePhone,smallPhotoUrl from user ";
+	private static final String USER_QUERY = "select id,name,username,email,profileId,title,mobilePhone,smallPhotoUrl,isActive from user ";
 
 	/** @return User details about the recently accessed users, or a default list if there are no recents */
 	public List<User> getRecentUsers() throws IOException {

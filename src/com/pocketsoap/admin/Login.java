@@ -70,7 +70,7 @@ public class Login extends Activity {
     	spe.commit();
     	
     	// launch admin activity
-    	Intent i = new Intent(this, UserAdmin.class);
+    	Intent i = new Intent(this, UserListActivity.class);
     	i.putExtra("SID", values.get("access_token"));
     	i.putExtra("SVR", values.get("instance_url"));
     	startActivity(i);
