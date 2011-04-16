@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.pocketsoap.admin.ApiAsyncTask.ActivityCallbacks;
 import com.pocketsoap.salesforce.SalesforceApi;
-import com.pocketsoap.salesforce.SalesforceApi.User;
+import com.pocketsoap.salesforce.User;
 
 /** Activity that is the user detail page, where they can do a reset password, toggle isActive etc */
 public class UserDetailActivity extends Activity implements ActivityCallbacks {

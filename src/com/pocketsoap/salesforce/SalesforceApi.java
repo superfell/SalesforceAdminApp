@@ -44,55 +44,19 @@ public class SalesforceApi extends Http {
 	private final URI instance;
 	private final URI restRoot;
 	
-	public static class SObjectAttributes {
-		public String type;
-		public String url;
-	}
-	
-	public static class UserBasic {
-		public SObjectAttributes attributes;
-		public String Id;
-		public String Name;
-	}
-	
-	public static class User extends UserBasic {
-		public String Username;
-		public String Email;
-		public String ProfileId;
-		public String Title;
-		public String MobilePhone;
-		public String SmallPhotoUrl;
-		public boolean IsActive;
-	}
-	
-	public static class UserResource {
-		public Map<String, Object> objectDescribe;
-		public List<UserBasic> recentItems;
-	}
-	
-	public static class UserQueryResult {
-		public int totalSize;
-		public boolean done;
-		public List<User> records;
-	}
-	
-	public static class Error {
-		public String errorCode;
-		public String errorMessage;
-	}
-	
+	/** @returns the User SObjects primary resource from the REST API */
 	public UserResource getUserResource() throws IOException {
 		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
 	}
 	
-	private static final String USER_QUERY = "select id,name,username,email,profileId,title,mobilePhone,smallPhotoUrl,isActive from user ";
+	private static final String USER_QUERY = "select id,name,username,email,profileId,title,mobilePhone,phone,smallPhotoUrl,isActive from user ";
 
 	/** @return User details about the recently accessed users, or a default list if there are no recents */
 	public List<User> getRecentUsers() throws IOException {
 		// there's only Id & Name in the recents list, so we need to get that, and then use the Ids in a query.
 		UserResource ur = getUserResource();
 		StringBuilder soql = new StringBuilder(USER_QUERY);
-		if (ur.recentItems.size() == 0) {
+		if (ur.recentItems == null || ur.recentItems.size() == 0) {
 			soql.append("limit 10");	// nothing recent, just grab the first 10
 		} else {
 			soql.append("where id in (");
@@ -103,28 +67,14 @@ public class SalesforceApi extends Http {
 		}
 		return userSoqlQuery(soql.toString());
 	}
-	
+
+	/** @return a list of users that have the searchTerm in their username */
 	public List<User> usernameSearch(String searchTerm, int limit) throws IOException {
 		String soql = USER_QUERY + "where username like '%" + searchTerm + "%' limit " + limit;
 		return userSoqlQuery(soql);
 	}
-	
-	private List<User> userSoqlQuery(String soql) throws IOException {
-		URI q = restRoot.resolve("query?q=" + Uri.encode(soql));
-		return getJson(q, UserQueryResult.class).records;
-	}
-	
-	private Map<String, String> getStandardHeaders() {
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Accept", "application/json");
-		headers.put("Authorization", "OAuth " + sessionId);
-		return headers;
-	}
-	
-	protected <T> T getJson(URI uri, Class<T> responseClz) throws IOException {
-		return this.getWithJsonResponse(uri, getStandardHeaders(), responseClz);
-	}
-	
+
+	/** makes a PATCH request to update an SObject */
 	public void patchSObjectJson(String type, String id, final Map<String, Object> props) throws IOException {
 		ContentProducer json = new ContentProducer() {
 			public void writeTo(OutputStream os) throws IOException {
@@ -136,14 +86,9 @@ public class SalesforceApi extends Http {
 		jsonEntity.setContentType("application/json");
 		this.patchWithJsonResponse(uri, jsonEntity, getStandardHeaders(), User.class);
 	}
-	
-	protected void handleErrorResponse(HttpResponse resp) throws IOException {
-		List<Error> errors = mapper.readValue(resp.getEntity().getContent(), new TypeReference<List<Error>>() {});
-		throw new IOException(errors.get(0).errorMessage);
-	}
-	
+
+	/** performs a pasword reset on the specified userId (using the SOAP API) */
 	public void resetPassword(final String userId) throws IOException {
-		// can only do this via soap
 		URI soapUri = instance.resolve("/services/Soap/u/21.0");
 		SoapProducer rp = new SoapProducer(sessionId) {
 			@Override
@@ -170,5 +115,26 @@ public class SalesforceApi extends Http {
 		} finally {
 			res.getEntity().consumeContent();
 		}
+	}
+	
+	private List<User> userSoqlQuery(String soql) throws IOException {
+		URI q = restRoot.resolve("query?q=" + Uri.encode(soql));
+		return getJson(q, UserQueryResult.class).records;
+	}
+	
+	private Map<String, String> getStandardHeaders() {
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Accept", "application/json");
+		headers.put("Authorization", "OAuth " + sessionId);
+		return headers;
+	}
+	
+	protected <T> T getJson(URI uri, Class<T> responseClz) throws IOException {
+		return this.getWithJsonResponse(uri, getStandardHeaders(), responseClz);
+	}
+	
+	protected void handleErrorResponse(HttpResponse resp) throws IOException {
+		List<Error> errors = mapper.readValue(resp.getEntity().getContent(), new TypeReference<List<Error>>() {});
+		throw new IOException(errors.get(0).errorMessage);
 	}
 }

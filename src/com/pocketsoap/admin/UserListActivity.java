@@ -25,7 +25,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.pocketsoap.salesforce.SalesforceApi;
-import com.pocketsoap.salesforce.SalesforceApi.User;
+import com.pocketsoap.salesforce.User;
 
 /** the user list, this defaults to showing the recent users, and allows for a search */
 public class UserListActivity extends ListActivity implements OnEditorActionListener, ApiAsyncTask.ActivityCallbacks {
