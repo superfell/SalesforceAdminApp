@@ -1,18 +1,12 @@
 package com.pocketsoap.salesforce;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentProducer;
-import org.apache.http.entity.EntityTemplate;
+import org.apache.http.entity.*;
 import org.codehaus.jackson.type.TypeReference;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlSerializer;
@@ -49,7 +43,7 @@ public class SalesforceApi extends Http {
 		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
 	}
 	
-	private static final String USER_QUERY = "select id,name,username,email,profileId,title,mobilePhone,phone,smallPhotoUrl,isActive from user ";
+	private static final String USER_QUERY = "select id,name,username,email,title,mobilePhone,phone,smallPhotoUrl,isActive from user ";
 
 	/** @return User details about the recently accessed users, or a default list if there are no recents */
 	public List<User> getRecentUsers() throws IOException {
@@ -68,9 +62,9 @@ public class SalesforceApi extends Http {
 		return userSoqlQuery(soql.toString());
 	}
 
-	/** @return a list of users that have the searchTerm in their username */
-	public List<User> usernameSearch(String searchTerm, int limit) throws IOException {
-		String soql = USER_QUERY + "where username like '%" + searchTerm + "%' limit " + limit;
+	/** @return a list of users that have the searchTerm in their name */
+	public List<User> userSearch(String searchTerm, int limit) throws IOException {
+		String soql = USER_QUERY + "where name like '%" + searchTerm + "%' limit " + limit;
 		return userSoqlQuery(soql);
 	}
 

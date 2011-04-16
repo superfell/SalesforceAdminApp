@@ -1,7 +1,6 @@
 package com.pocketsoap.admin;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.SharedPreferences.Editor;
 
 /** helper for reading/writing the refresh token from the preferences */

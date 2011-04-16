@@ -1,7 +1,6 @@
 package com.pocketsoap.salesforce;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 /** parses a soap response looking to see if its a soap fault */

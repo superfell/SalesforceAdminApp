@@ -1,10 +1,8 @@
 package com.pocketsoap.admin;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.*;
+import java.util.*;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -13,12 +11,10 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
+import android.os.*;
 import android.widget.Toast;
 
-import com.pocketsoap.salesforce.Http;
-import com.pocketsoap.salesforce.SalesforceApi;
+import com.pocketsoap.salesforce.*;
 
 /** This is the Boot/Loader activity it, checks for a saved refresh token, generates a sid, or if that fails, starts the oauth flow */
 public class Boot extends Activity {

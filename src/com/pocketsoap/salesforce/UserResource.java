@@ -1,7 +1,6 @@
 package com.pocketsoap.salesforce;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /** the result of fetching the main user resource */
 public class UserResource {

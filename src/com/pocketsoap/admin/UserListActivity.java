@@ -7,25 +7,13 @@ import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.ListActivity;
-import android.content.Context;
-import android.content.Intent;
+import android.content.*;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
-import com.pocketsoap.salesforce.SalesforceApi;
-import com.pocketsoap.salesforce.User;
+import com.pocketsoap.salesforce.*;
 
 /** the user list, this defaults to showing the recent users, and allows for a search */
 public class UserListActivity extends ListActivity implements OnEditorActionListener, ApiAsyncTask.ActivityCallbacks {
@@ -157,7 +145,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		
 		@Override
 		protected List<User> doApiCall(String... params) throws Exception {
-			return salesforce.usernameSearch(params[0], 25);
+			return salesforce.userSearch(params[0], 25);
 		}
 
 		@Override

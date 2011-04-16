@@ -1,8 +1,6 @@
 package com.pocketsoap.salesforce;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 
 import org.apache.http.entity.ContentProducer;
 import org.xmlpull.v1.XmlSerializer;

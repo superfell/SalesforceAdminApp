@@ -1,10 +1,7 @@
 package com.pocketsoap.admin;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.pocketsoap.salesforce.SalesforceApi;
+import java.util.*;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,9 +9,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
+
+import com.pocketsoap.salesforce.SalesforceApi;
 
 /** the oauth web flow, we launch a contained webview, start the oauth flow, and wait until we see the redirect to the callback uri */
 public class Login extends Activity {

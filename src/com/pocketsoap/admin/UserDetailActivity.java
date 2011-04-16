@@ -2,27 +2,18 @@ package com.pocketsoap.admin;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import com.pocketsoap.admin.ApiAsyncTask.ActivityCallbacks;
-import com.pocketsoap.salesforce.SalesforceApi;
-import com.pocketsoap.salesforce.User;
+import com.pocketsoap.salesforce.*;
 
 /** Activity that is the user detail page, where they can do a reset password, toggle isActive etc */
 public class UserDetailActivity extends Activity implements ActivityCallbacks {
