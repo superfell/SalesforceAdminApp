@@ -16,10 +16,12 @@ public class SalesforceApi extends Http {
 	SalesforceApi(String sid, URI instance) {
 		this.sessionId = sid;
 		this.instance = instance;
+		this.restRoot = instance.resolve("/services/data/v21.0/");
 	}
 	
 	private final String sessionId;
 	private final URI instance;
+	private final URI restRoot;
 	
 	public static class SObjectAttributes {
 		public String type;
@@ -36,6 +38,9 @@ public class SalesforceApi extends Http {
 		public String Username;
 		public String Email;
 		public String ProfileId;
+		public String Title;
+		public String MobilePhone;
+		public String SmallPhotoUrl;
 	}
 	
 	public static class UserResource {
@@ -50,12 +55,35 @@ public class SalesforceApi extends Http {
 	}
 	
 	public UserResource getUserResource() throws IOException {
-		return getJson(instance.resolve("/services/data/v21.0/sobjects/user"), UserResource.class);
+		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
+	}
+	
+	private static final String USER_QUERY = "select id,name,username,email,profileId,title,mobilePhone,smallPhotoUrl from user ";
+
+	/** @return User details about the recently accessed users, or a default list if there are no recents */
+	public List<User> getRecentUsers() throws IOException {
+		// there's only Id & Name in the recents list, so we need to get that, and then use the Ids in a query.
+		UserResource ur = getUserResource();
+		StringBuilder soql = new StringBuilder(USER_QUERY);
+		if (ur.recentItems.size() == 0) {
+			soql.append("limit 20");	// nothing recent, just grab the first 20
+		} else {
+			soql.append("where id in (");
+			for (UserBasic b : ur.recentItems)
+				soql.append("'").append(b.Id).append("',");
+			soql.deleteCharAt(soql.length()-1);
+			soql.append(")");
+		}
+		return userSoqlQuery(soql.toString());
 	}
 	
 	public List<User> userSearch(String searchTerm, int limit) throws IOException {
-		String soql = "select id,name,username,email,profileId from user where username like '%" + searchTerm + "%' limit " + limit;
-		URI q = instance.resolve("/services/data/v21.0/query?q=" + Uri.encode(soql));
+		String soql = USER_QUERY + "where username like '%" + searchTerm + "%' limit " + limit;
+		return userSoqlQuery(soql);
+	}
+	
+	private List<User> userSoqlQuery(String soql) throws IOException {
+		URI q = restRoot.resolve("query?q=" + Uri.encode(soql));
 		return getJson(q, UserQueryResult.class).records;
 	}
 	

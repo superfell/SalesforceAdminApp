@@ -5,10 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import com.pocketsoap.admin.SalesforceApi.User;
-import com.pocketsoap.admin.SalesforceApi.UserBasic;
-import com.pocketsoap.admin.SalesforceApi.UserResource;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -24,6 +20,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import com.pocketsoap.admin.SalesforceApi.User;
 
 public class UserAdmin extends ListActivity implements OnEditorActionListener {
 
@@ -61,14 +59,14 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
                 Toast.LENGTH_LONG ).show();
 	}
 	
-	private <T> void bindUserList(List<? extends UserBasic> users) {
-		UserAdapter a = new UserAdapter(this, R.layout.user_row, users);
+	private <T> void bindUserList(List<User> users) {
+		UserListAdapter a = new UserListAdapter(this, R.layout.user_row, users);
 		this.setListAdapter(a);
 	}
 	
-	private class UserAdapter<T extends UserBasic> extends ArrayAdapter<T> {
+	private class UserListAdapter extends ArrayAdapter<User> {
 
-		public UserAdapter(Context context, int textViewResourceId, List<T> objects) {
+		public UserListAdapter(Context context, int textViewResourceId, List<User> objects) {
 			super(context, textViewResourceId, objects);
 		}
 
@@ -76,10 +74,17 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null)
 				convertView = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.user_row, null);
-			UserBasic u = getItem(position);
-			TextView tv = (TextView)convertView.findViewById(R.id.user_name);
-			tv.setText(u.Name);
+			User u = getItem(position);
+			setText(convertView, R.id.user_name, u.Name);
+			setText(convertView, R.id.user_username, u.Username);
+			setText(convertView, R.id.user_title, u.Title);
+			Log.i("u", "title:" + u.Title);
 			return convertView;
+		}
+		
+		private void setText(View v, int textViewId, String text) {
+			TextView tv = (TextView)v.findViewById(textViewId);
+			tv.setText(text);
 		}
 	}
 	
@@ -115,19 +120,21 @@ public class UserAdmin extends ListActivity implements OnEditorActionListener {
 		}
 	}
 	
-	private class RecentUserListTask extends ApiAsyncTask<Void, SalesforceApi.UserResource> {
+	/** background task to fetch teh recent users list, and then bind it to the UI */
+	private class RecentUserListTask extends ApiAsyncTask<Void, List<User>> {
 
 		@Override
-		protected SalesforceApi.UserResource doApiCall(Void ... params) throws IOException {
-			return salesforce.getUserResource();
+		protected List<User> doApiCall(Void ... params) throws IOException {
+			return salesforce.getRecentUsers();
 		}
 		
 		@Override
-		protected void handleResult(SalesforceApi.UserResource result) {
-			bindUserList(result.recentItems);
+		protected void handleResult(List<User> result) {
+			bindUserList(result);
 		}
 	}
 
+	/** background task to run the search query, and bind the results to the UI */
 	private class UserSearchTask extends ApiAsyncTask<String, List<User>> {
 
 		@Override
