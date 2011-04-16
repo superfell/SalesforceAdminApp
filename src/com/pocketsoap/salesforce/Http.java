@@ -31,6 +31,14 @@ public class Http {
 	protected HttpClient client;
 	protected ObjectMapper mapper;
 
+	/** makes a HEAD request and returns the HTTP status code  */
+	public int head(URI uri, Map<String, String> httpHeaders) throws IOException {
+		HttpHead h = new HttpHead(uri);
+		addHeaders(h, httpHeaders);
+		HttpResponse resp = client.execute(h);
+		return resp.getStatusLine().getStatusCode();
+	}
+	
 	/** make a GET request, and parse the response JSON payload */
 	public <T> T getWithJsonResponse(URI uri, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
 		HttpGet get = new HttpGet(uri);
@@ -53,13 +61,17 @@ public class Http {
 	}
 	
 	protected <T> T addHeadersAndExecute(HttpRequestBase request, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
+		addHeaders(request, httpHeaders);
+		return executeAndParse(request, responseClz);
+	}
+
+	protected void addHeaders(HttpRequestBase request, Map<String, String> httpHeaders) {
 		if (httpHeaders != null) {
 			for (Map.Entry<String, String> hdr : httpHeaders.entrySet())
 				request.addHeader(hdr.getKey(), hdr.getValue());
 		}
-		return executeAndParse(request, responseClz);
 	}
-
+	
 	protected <T> T executeAndParse(HttpRequestBase request, Class<T> responseClz) throws IOException {
 		HttpResponse resp = client.execute(request);
 		int sc = resp.getStatusLine().getStatusCode();

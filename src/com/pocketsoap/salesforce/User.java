@@ -1,7 +1,7 @@
 package com.pocketsoap.salesforce;
 
 /** info about a user */
-public class User extends UserBasic {
+public class User extends SObjectBasic {
 	public String Username;
 	public String Title;
 	public String Email;

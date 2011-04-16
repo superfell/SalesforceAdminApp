@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.*;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.*;
 import org.codehaus.jackson.type.TypeReference;
@@ -37,34 +37,33 @@ public class SalesforceApi extends Http {
 	private final String sessionId;
 	private final URI instance;
 	private final URI restRoot;
+	private Boolean hasUserFeed;
 	
 	/** @returns the User SObjects primary resource from the REST API */
 	public UserResource getUserResource() throws IOException {
 		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
 	}
 	
-	private static final String USER_QUERY = "select id,name,username,email,title,mobilePhone,phone,isActive from user ";
-
 	/** @return User details about the recently accessed users, or a default list if there are no recents */
 	public List<User> getRecentUsers() throws IOException {
 		// there's only Id & Name in the recents list, so we need to get that, and then use the Ids in a query.
 		UserResource ur = getUserResource();
-		StringBuilder soql = new StringBuilder(USER_QUERY);
+		String soql;
 		if (ur.recentItems == null || ur.recentItems.size() == 0) {
-			soql.append("limit 10");	// nothing recent, just grab the first 10
+			soql = buildUserSoqlQuery("limit 10");
 		} else {
-			soql.append("where id in (");
-			for (UserBasic b : ur.recentItems)
-				soql.append("'").append(b.Id).append("',");
-			soql.deleteCharAt(soql.length()-1);
-			soql.append(") order by lastname,firstname");
+			StringBuilder ids = new StringBuilder();
+			for (SObjectBasic b : ur.recentItems)
+				ids.append("'").append(b.Id).append("',");
+			ids.deleteCharAt(ids.length()-1);
+			soql = buildUserSoqlQuery("where id in (", ids.toString(), ") order by lastname,firstname");
 		}
-		return userSoqlQuery(soql.toString());
+		return userSoqlQuery(soql);
 	}
 
 	/** @return a list of users that have the searchTerm in their name */
 	public List<User> userSearch(String searchTerm, int limit) throws IOException {
-		String soql = USER_QUERY + "where name like '%" + searchTerm + "%' limit " + limit;
+		String soql = buildUserSoqlQuery("where name like '%", searchTerm, "%' limit ", String.valueOf(limit));
 		return userSoqlQuery(soql);
 	}
 
@@ -109,6 +108,24 @@ public class SalesforceApi extends Http {
 		} finally {
 			res.getEntity().consumeContent();
 		}
+	}
+	
+	private String buildUserSoqlQuery(String ... additional) throws IOException {
+		StringBuilder q = new StringBuilder("select id,name,username,email,title,mobilePhone,phone,isActive");
+		if (hasUserFeedObject())
+			q.append(",smallPhotoUrl");
+		q.append(" from user ");
+		for (String a : additional)
+			q.append(a);
+		return q.toString();
+	}
+	
+	private boolean hasUserFeedObject() throws IOException {
+		if (this.hasUserFeed == null) {
+			URI uf = restRoot.resolve("sobjects/userfeed");
+			hasUserFeed = head(uf, getStandardHeaders()) == HttpStatus.SC_OK;
+		}
+		return hasUserFeed;
 	}
 	
 	private List<User> userSoqlQuery(String soql) throws IOException {
