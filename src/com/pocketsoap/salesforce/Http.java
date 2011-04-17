@@ -38,13 +38,13 @@ public class Http {
 		HttpResponse resp = client.execute(h);
 		return resp.getStatusLine().getStatusCode();
 	}
-	
+
 	/** make a GET request, and parse the response JSON payload */
 	public <T> T getWithJsonResponse(URI uri, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
 		HttpGet get = new HttpGet(uri);
 		return addHeadersAndExecute(get, httpHeaders, responseClz);
 	}
-	
+
 	/** make a POST request with a set of form params, and parse the response JSON payload */
 	public <T> T postWithJsonResponse(URI uri, List<NameValuePair> params, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
 		HttpPost post = new HttpPost(uri);

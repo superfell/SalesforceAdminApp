@@ -44,6 +44,8 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		} catch (URISyntaxException e) {
 			helper.showError(e);
 		}
+		TextView f = (TextView)findViewById(R.id.footer_text);
+		f.setText(salesforce.getInstanceUri().getHost());
 	}
 	
     @Override

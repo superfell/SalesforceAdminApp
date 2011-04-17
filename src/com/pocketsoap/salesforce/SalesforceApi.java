@@ -40,6 +40,10 @@ public class SalesforceApi extends Http {
 	private final URI restRoot;
 	private Boolean hasUserFeed;
 	
+	public URI getInstanceUri() {
+		return instance;
+	}
+	
 	/** @returns the User SObjects primary resource from the REST API */
 	public UserResource getUserResource() throws IOException {
 		return getJson(restRoot.resolve("sobjects/user"), UserResource.class);
