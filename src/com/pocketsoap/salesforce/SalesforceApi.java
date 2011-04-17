@@ -5,15 +5,16 @@ import java.net.*;
 import java.util.*;
 
 import org.apache.http.*;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.*;
+import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Xml;
+import android.util.*;
 
 
 /**
@@ -108,6 +109,18 @@ public class SalesforceApi extends Http {
 		} finally {
 			res.getEntity().consumeContent();
 		}
+	}
+	
+	/** GETs a URI that returns binary data, like an image, don't use this for big images, fine for thumbnails */
+	public byte [] getBinaryData(String uri) throws IOException, URISyntaxException {
+		// see http://blog.sforce.com/sforce/2011/03/accessing-chatter-user-pics.html
+		URI withSid = new URI(uri + "?oauth_token=" + Uri.encode(sessionId));
+		Log.i("GET", withSid.toString());
+		HttpGet get = new HttpGet(withSid);
+		HttpResponse res = client.execute(get);
+		if (res.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+			throw new IOException("Unexpected status code of " + res.getStatusLine().getStatusCode() + " returned");
+		return EntityUtils.toByteArray(res.getEntity());
 	}
 	
 	private String buildUserSoqlQuery(String ... additional) throws IOException {

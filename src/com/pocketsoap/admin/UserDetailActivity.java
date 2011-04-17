@@ -1,13 +1,14 @@
 package com.pocketsoap.admin;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.*;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
-import android.os.Bundle;
+import android.graphics.*;
+import android.os.*;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
@@ -54,6 +55,16 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 		isActive = (CheckBox)findViewById(R.id.detail_enabled);
 		isActive.setChecked(user.IsActive);
 		isActive.setOnClickListener(new ToggleActive());
+		
+		// sigh, Android 2.1's SSL handling is not compatible with the way the SSL certs are setup on *.content.force.com
+		// so, we can't load the user photo's if we're on 2.1
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			// the default person image is https://blah/.../005/T but we don't want to bother fetching that, we'll just use our local default instead.
+			if (user.SmallPhotoUrl != null && user.SmallPhotoUrl.length() > 0 && !user.SmallPhotoUrl.endsWith("/005/T")) {
+				PhotoLoaderTask photoLoader = new PhotoLoaderTask(this);
+				photoLoader.execute(user.SmallPhotoUrl);
+			}
+		}
 	}
 	
 	private Button resetPasswordButton;
@@ -155,6 +166,27 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 		@Override
 		protected void handleResult(Void result) {
 			Toast.makeText(UserDetailActivity.this, getString(R.string.password_was_reset), Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	private class PhotoLoaderTask extends ApiAsyncTask<String, Bitmap> {
+
+		PhotoLoaderTask(ActivityCallbacks activity) {
+			super(activity);
+		}
+
+		@Override
+		protected Bitmap doApiCall(String... params) throws Exception {
+			byte [] img = salesforce.getBinaryData(params[0]);
+			return BitmapFactory.decodeByteArray(img, 0, img.length);
+		}
+
+		@Override
+		protected void handleResult(Bitmap result) {
+			if (result != null) {
+				ImageView v = (ImageView)findViewById(R.id.detail_photo);
+				v.setImageBitmap(result);
+			}
 		}
 	}
 }

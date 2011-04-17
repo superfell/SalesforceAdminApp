@@ -19,7 +19,7 @@ public class Login extends Activity {
 	private static final String TAG = "Login";
 	
 	public static final String CLIENT_ID = "3MVG99OxTyEMCQ3hP1_9.Mh8dF0RyAiHUybfddL9XzlPIAkLZtbHUJmz7HNHvhQSOgwsl5Ivb8uF0FU_R0nob";
-	public static final String CALLBACK_URI = "adminApp://oauth/";
+	public static final String CALLBACK_URI = "adminapp:///oauth/done";
 	
 	public static final String DEFAULT_AUTH_HOST = "https://login.salesforce.com";
 	

@@ -14,9 +14,11 @@
 			android:id="@+id/detail_photo"
 			android:layout_width="64dp"
 			android:layout_height="64dp"
-			android:layout_margin="5dp"
+			android:layout_margin="6dp"
 			android:layout_alignParentTop="true"
 			android:layout_alignParentLeft="true"
+			android:padding="1px"
+			android:background="@drawable/photo_border"
 			android:src="@drawable/ic_contact_picture"
 		/>
 		
