@@ -136,13 +136,17 @@ public class UserDetailActivity extends Activity {
 			}
 			
 			Log.i("user", userToClone.toString());
-			salesforce.postSObjectJson("user", userToClone);
-			return null;
+			SaveResult sr = salesforce.createSObject("user", userToClone);
+			if (!sr.success)
+				throw new IOException(sr.errors.get(0).message);
+			// fetch the new record to update the mru
+			salesforce.getJson(salesforce.getRestRootUri().resolve("sobjects/user/" + sr.id + "?fields=Id"), Map.class);
+			return sr.id;
 		}
 		
 		@Override
 		protected void handleResult(String res) {
-			
+			finish();
 		}
 	}
 	

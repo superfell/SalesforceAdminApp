@@ -10,6 +10,7 @@ import org.apache.http.entity.*;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Intent;
@@ -33,15 +34,21 @@ public class SalesforceApi extends Http {
 		this.sessionId = sid;
 		this.instance = instance;
 		this.restRoot = instance.resolve("/services/data/v21.0/");
+		this.soapUri = instance.resolve("/services/Soap/u/21.0");
 	}
 	
 	private final String sessionId;
 	private final URI instance;
 	private final URI restRoot;
+	private final URI soapUri;
 	private Boolean hasUserFeed;
 	
 	public URI getInstanceUri() {
 		return instance;
+	}
+	
+	public URI getRestRootUri() {
+		return restRoot;
 	}
 	
 	/** @returns the User SObjects primary resource from the REST API */
@@ -61,7 +68,7 @@ public class SalesforceApi extends Http {
 			for (SObjectBasic b : ur.recentItems)
 				ids.append("'").append(b.Id).append("',");
 			ids.deleteCharAt(ids.length()-1);
-			soql = buildUserSoqlQuery("where id in (", ids.toString(), ") order by lastname,firstname");
+			soql = buildUserSoqlQuery("where id in (", ids.toString(), ") order by systemmodstamp desc");
 		}
 		return userSoqlQuery(soql);
 	}
@@ -72,17 +79,28 @@ public class SalesforceApi extends Http {
 		return userSoqlQuery(soql);
 	}
 
-	/** makes a POST request to create an SObject */
-	public SaveResult postSObjectJson(String type, final Map<String, Object> props) throws IOException {
-		ContentProducer json = new ContentProducer() {
-			public void writeTo(OutputStream os) throws IOException {
-				mapper.writeValue(os, props);
+	/** makes a POST request to create an SObject, we do this via the SOAP API, so that we can set the email header */
+	public SaveResult createSObject(final String type, final Map<String, Object> props) throws IOException {
+		SoapProducer rp = new SoapProducer(sessionId) {
+			@Override
+			protected void writeBody(XmlSerializer x) throws IOException {
+				x.startTag(PARTNER_NS, "create");
+				x.startTag(PARTNER_NS, "sobject");
+				writeElem(x, PARTNER_NS, "type", type);
+				for (Map.Entry<String, Object> f : props.entrySet()) {
+					Object v = f.getValue();
+					if (v == null) continue;
+					writeElem(x, PARTNER_NS, f.getKey(), v.toString());
+				}
+				x.endTag(PARTNER_NS, "sobject");
+				x.endTag(PARTNER_NS, "create");
 			}
 		};
-		URI uri = restRoot.resolve("sobjects/" + type);
-		EntityTemplate jsonEntity = new EntityTemplate(json);
-		jsonEntity.setContentType("application/json");
-		return postWithJsonResponse(uri, jsonEntity, getStandardHeaders(), SaveResult.class);
+		SaveResultHandler handler = new SaveResultHandler();
+		postSoapRequest(rp, handler);
+		if (handler.hasSeenSoapFault())
+			throw new IOException(handler.getFaultString());
+		return handler.getResults().get(0);
 	}
 
 	/** makes a PATCH request to update an SObject */
@@ -100,7 +118,6 @@ public class SalesforceApi extends Http {
 
 	/** performs a pasword reset on the specified userId (using the SOAP API) */
 	public void resetPassword(final String userId) throws IOException {
-		URI soapUri = instance.resolve("/services/Soap/u/21.0");
 		SoapProducer rp = new SoapProducer(sessionId) {
 			@Override
 			protected void writeBody(XmlSerializer x) throws IOException {
@@ -109,7 +126,14 @@ public class SalesforceApi extends Http {
 				x.endTag(PARTNER_NS, "resetPassword");
 			}
 		};
-		EntityTemplate resetPwdRequestBody = new EntityTemplate(rp);
+		SoapFaultHandler handler = new SoapFaultHandler();
+		postSoapRequest(rp, handler);
+		if (handler.hasSeenSoapFault())
+			throw new IOException(handler.getFaultString());
+	}
+	
+	private <T extends DefaultHandler> void postSoapRequest(SoapProducer req, T responseHandler) throws IOException {
+		EntityTemplate resetPwdRequestBody = new EntityTemplate(req);
 		resetPwdRequestBody.setContentType("text/xml; charset=UTF-8");
 		HttpPost post = new HttpPost(soapUri);
 		post.setEntity(resetPwdRequestBody);
@@ -117,10 +141,7 @@ public class SalesforceApi extends Http {
 		HttpResponse res = client.execute(post);
 		InputStreamReader rdr = new InputStreamReader(res.getEntity().getContent(), "UTF-8");
 		try {
-			SoapFaultHandler handler = new SoapFaultHandler();
-			Xml.parse(rdr, handler);
-			if (handler.hasSeenSoapFault())
-				throw new IOException(handler.getFaultString());
+			Xml.parse(rdr, responseHandler);
 		} catch (SAXException e) {
 			throw new IOException(e.getMessage());
 		} finally {

@@ -6,7 +6,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /** parses a soap response looking to see if its a soap fault */
 class SoapFaultHandler extends DefaultHandler {
 	
-	private final StringBuilder chars = new StringBuilder();
+	protected final StringBuilder chars = new StringBuilder();
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -20,8 +20,8 @@ class SoapFaultHandler extends DefaultHandler {
 		chars.append(ch, start, length);
 	}
 
-	private boolean seenSoapFault;
-	private String faultCode, faultString;
+	protected boolean seenSoapFault;
+	protected String faultCode, faultString;
 	
 	boolean hasSeenSoapFault() {
 		return seenSoapFault;

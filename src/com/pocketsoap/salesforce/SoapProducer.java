@@ -41,12 +41,19 @@ abstract class SoapProducer implements ContentProducer {
 	
 	protected void writeHeaders(XmlSerializer x) throws IOException {
 		x.startTag(SOAP_NS, "Header");
+		
 		x.startTag(PARTNER_NS, "SessionHeader");
 		writeElem(x, PARTNER_NS, "sessionId", sessionId);
 		x.endTag(PARTNER_NS, "SessionHeader");
+		
 		x.startTag(PARTNER_NS, "EmailHeader");
 		writeElem(x, PARTNER_NS, "triggerUserEmail", "true");
 		x.endTag(PARTNER_NS, "EmailHeader");
+		
+		x.startTag(PARTNER_NS, "MruHeader");
+		writeElem(x, PARTNER_NS, "updateMru", "true");
+		x.endTag(PARTNER_NS, "MruHeader");
+		
 		x.endTag(SOAP_NS, "Header");
 	}
 	
