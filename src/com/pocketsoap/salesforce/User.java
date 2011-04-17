@@ -9,4 +9,6 @@ public class User extends SObjectBasic {
 	public String MobilePhone;
 	public String SmallPhotoUrl;
 	public boolean IsActive;
+	public String FirstName;
+	public String LastName;
 }

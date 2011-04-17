@@ -41,6 +41,15 @@
 	
 	<string name="clone_user">Clone user</string>
 
+	<!--  clone -->
+	<string name="clone_username">New username</string>
+	<string name="clone_firstname">First name</string>
+	<string name="clone_lastname">Last name</string>
+	<string name="clone_email">Email</string>
+	<string name="clone_create">Create User</string>
+	<string name="clone_done">Successfully cloned user</string>
+	<string name="clone_validation_err">Must supply new username, Last name and email address</string>
+
 	<!-- list menu -->
 	<string name="logout">Logout</string>
 </resources>

@@ -1,18 +1,18 @@
 package com.pocketsoap.admin;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.*;
 import android.os.*;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -22,6 +22,8 @@ import com.pocketsoap.salesforce.*;
 /** Activity that is the user detail page, where they can do a reset password, toggle isActive etc */
 public class UserDetailActivity extends Activity {
 
+	private static final int RC_CLONE_USER = 42;
+	
 	static final String EXTRA_USER_JSON = "user_json";
 
 	@Override
@@ -97,11 +99,19 @@ public class UserDetailActivity extends Activity {
 		t.execute(user.Id);
 	}
 
+	/** user tapped the clone button, start the user clone activity */
 	public void cloneUserClicked(View v) {
-		CloneUserTask t = new CloneUserTask(helper);
-		t.execute(user);
+		Intent i = new Intent(this, UserCloneActivity.class);
+		i.putExtras(getIntent());
+		startActivityForResult(i, RC_CLONE_USER);
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == RC_CLONE_USER && resultCode == RESULT_OK)
+			finish();
+	}
+
 	/** called when the user taps the IsActive checkbox */
 	private class ToggleActive implements OnClickListener {
 		public void onClick(View v) {
@@ -110,46 +120,6 @@ public class UserDetailActivity extends Activity {
 		}
 	}
 
-	private class CloneUserTask extends ApiAsyncTask<User, String> {
-		CloneUserTask(ActivityCallbacks a) {
-			super(a);
-		}
-		
-		@Override
-		protected String doApiCall(User ... params) throws Exception {
-			URI userToCloneUri = new URI(params[0].attributes.url);
-			Map<String, Object> userToClone = salesforce.getJson(userToCloneUri, Map.class);
-			// update props
-			userToClone.put("Username", "newuser3@foo.com");
-			userToClone.put("FirstName", "bob");
-			userToClone.put("LastName", "the builder");
-			userToClone.put("Email", "simon@fell.com");
-			userToClone.remove("CommunityNickname");
-			userToClone.remove("attributes");
-			userToClone.remove("Id");
-			
-			Map<String, Object> desc = salesforce.getJson(new URI("sobjects/user/describe"), Map.class);
-			List<Map<String, Object>> fields = (List<Map<String, Object>>)desc.get("fields");
-			for (Map<String, Object> fieldProps : fields) {
-				if ((Boolean)fieldProps.get("createable")) continue;
-				userToClone.remove(fieldProps.get("name"));
-			}
-			
-			Log.i("user", userToClone.toString());
-			SaveResult sr = salesforce.createSObject("user", userToClone);
-			if (!sr.success)
-				throw new IOException(sr.errors.get(0).message);
-			// fetch the new record to update the mru
-			salesforce.getJson(salesforce.getRestRootUri().resolve("sobjects/user/" + sr.id + "?fields=Id"), Map.class);
-			return sr.id;
-		}
-		
-		@Override
-		protected void handleResult(String res) {
-			finish();
-		}
-	}
-	
 	/** background task to toggle the IsActive flag on the User */
 	private class SetActiveTask extends ApiAsyncTask<Boolean, Void> {
 

@@ -162,7 +162,7 @@ public class SalesforceApi extends Http {
 	}
 	
 	private String buildUserSoqlQuery(String ... additional) throws IOException {
-		StringBuilder q = new StringBuilder("select id,name,username,email,title,mobilePhone,phone,isActive");
+		StringBuilder q = new StringBuilder("select id,name,firstname,lastname,username,email,title,mobilePhone,phone,isActive");
 		if (hasUserFeedObject())
 			q.append(",smallPhotoUrl");
 		q.append(" from user ");
