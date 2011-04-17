@@ -27,12 +27,18 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		search = (EditText)findViewById(R.id.search_text);
 		search.setOnEditorActionListener(this);
 		emptyText = (TextView)findViewById(android.R.id.empty);
+		
+		// inflate the view for the header view, and add it to the list view
+		View header = ((LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_header, null);
+		listHeaderText = (TextView)header.findViewById(R.id.list_header_text);
+		getListView().addHeaderView(header, null, false);
 	}
 
 	private ActivityHelper helper;
 	private SalesforceApi salesforce;
 	private EditText search;
 	private TextView emptyText;
+	private TextView listHeaderText;
 
 	@Override
 	public void onResume() {
@@ -114,6 +120,11 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		}
 	}
 	
+	/** returns true if we should do a search, or false if we should show the recent list */
+	private boolean shouldDoSearch(String searchTerm) {
+		return searchTerm != null && searchTerm.trim().length() > 0;
+	}
+	
 	/** background task to run the search query, and bind the results to the UI */
 	private class UserSearchTask extends ApiAsyncTask<String, List<User>> {
 
@@ -124,9 +135,9 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		@Override
 		protected List<User> doApiCall(String... params) throws Exception {
 			String search = params[0];
-			if (search == null || search.length() == 0)
-				return salesforce.getRecentUsers();
-			return salesforce.userSearch(search, 25);
+			if (shouldDoSearch(search)) 
+				return salesforce.userSearch(search, 25);
+			return salesforce.getRecentUsers();
 		}
 
 		@Override
@@ -136,6 +147,8 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	}
 	
 	protected void startFetchUsers(String searchTerm) {
+		int txtId = shouldDoSearch(searchTerm) ? R.string.list_search_results : R.string.list_recent;
+		listHeaderText.setText(getString(txtId));
 		UserSearchTask t = new UserSearchTask(helper);
 		t.execute(searchTerm);
 	}
