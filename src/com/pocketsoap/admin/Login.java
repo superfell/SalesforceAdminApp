@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
+import android.view.*;
 import android.webkit.*;
 
 import com.pocketsoap.salesforce.SalesforceApi;
@@ -21,7 +21,8 @@ public class Login extends Activity {
 	public static final String CLIENT_ID = "3MVG99OxTyEMCQ3hP1_9.Mh8dF0RyAiHUybfddL9XzlPIAkLZtbHUJmz7HNHvhQSOgwsl5Ivb8uF0FU_R0nob";
 	public static final String CALLBACK_URI = "adminapp:///oauth/done";
 	
-	public static final String DEFAULT_AUTH_HOST = "https://login.salesforce.com";
+	public static final String PROD_AUTH_HOST = "https://login.salesforce.com";
+	public static final String SANDBOX_AUTH_HOST = "https://test.salesforce.com";
 	
 	private static final String OAUTH_AUTH_PATH = "/services/oauth2/authorize";
 	
@@ -37,19 +38,47 @@ public class Login extends Activity {
     }
 
     private WebView webview;
-
+    private String loginHost;
+    
     @Override
     public void onResume() {
     	super.onResume();
-    	String url = DEFAULT_AUTH_HOST + OAUTH_AUTH_PATH +
-    				"?display=mobile" + 
+    	startOAuthFlow(PROD_AUTH_HOST, R.string.login_prod_name);
+    }
+
+    private void startOAuthFlow(String authHost, int loginTextId) {
+    	this.loginHost = authHost;
+    	String title = getString(R.string.login_title, getString(loginTextId));
+    	getWindow().setTitle(title);
+    	String url = loginHost + OAUTH_AUTH_PATH +
+					"?display=mobile" + 
 			    	"&response_type=token" +
 			    	"&client_id=" + Uri.encode(CLIENT_ID) + 
 			    	"&redirect_uri=" + Uri.encode(CALLBACK_URI);
-
     	webview.loadUrl(url);
     }
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.login_menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    	switch (item.getItemId()) {
+    		case R.id.menu_prod:
+    			startOAuthFlow(PROD_AUTH_HOST, R.string.login_prod_name);
+    			break;
+    			
+    		case R.id.menu_test:
+    			startOAuthFlow(SANDBOX_AUTH_HOST, R.string.login_test_name);
+    			break;
+    	}
+    	return super.onMenuItemSelected(featureId, item);
+    }
+    
     // called when the webview see's our callback_uri try to get loaded.
     private void authDone(Uri callbackUri) {
     	// parse info out of fragment
@@ -63,7 +92,7 @@ public class Login extends Activity {
     	}
 
     	// save the token, so we don't have to login next time around
-    	new RefreshTokenStore(this).saveToken(values.get("refresh_token"), DEFAULT_AUTH_HOST);
+    	new RefreshTokenStore(this).saveToken(values.get("refresh_token"), loginHost);
     	
     	// launch the user list activity
     	Intent i = new Intent(this, UserListActivity.class);

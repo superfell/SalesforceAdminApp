@@ -34,7 +34,7 @@ public class RefreshTokenStore {
 	}
 	
 	String getAuthServer() {
-		return pref.getString(AUTH_SERVER, Login.DEFAULT_AUTH_HOST);
+		return pref.getString(AUTH_SERVER, Login.PROD_AUTH_HOST);
 	}
 	
 	

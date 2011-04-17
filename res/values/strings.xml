@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Salesforce Admin 2 Go</string>
-    
+
     <!--  loading screen -->
-    <string name="boot_1">Salesforce Admin 2 Gop</string>
+    <string name="boot_1">Salesforce Admin 2 Go</string>
     <string name="boot_2">Authenticating</string>
     <string name="boot_3">Please wait...</string>
     <string name="auth_failed">authentication failed : %s</string>
+
+    <!-- login menu -->
+    <string name="login_prod">Login to production</string>
+    <string name="login_test">Login to sandbox</string>
+	<string name="login_title">Salesforce Admin 2 Go : %s</string>
+	<string name="login_prod_name">Production</string>
+	<string name="login_test_name">Sandbox</string>
 
 	<!--  list view -->
 	<string name="loading">Loading ...</string>
