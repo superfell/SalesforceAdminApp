@@ -1,7 +1,7 @@
 package com.pocketsoap.admin;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.*;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -12,6 +12,7 @@ import android.os.*;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -96,6 +97,11 @@ public class UserDetailActivity extends Activity {
 		t.execute(user.Id);
 	}
 
+	public void cloneUserClicked(View v) {
+		CloneUserTask t = new CloneUserTask(helper);
+		t.execute(user);
+	}
+	
 	/** called when the user taps the IsActive checkbox */
 	private class ToggleActive implements OnClickListener {
 		public void onClick(View v) {
@@ -104,6 +110,42 @@ public class UserDetailActivity extends Activity {
 		}
 	}
 
+	private class CloneUserTask extends ApiAsyncTask<User, String> {
+		CloneUserTask(ActivityCallbacks a) {
+			super(a);
+		}
+		
+		@Override
+		protected String doApiCall(User ... params) throws Exception {
+			URI userToCloneUri = new URI(params[0].attributes.url);
+			Map<String, Object> userToClone = salesforce.getJson(userToCloneUri, Map.class);
+			// update props
+			userToClone.put("Username", "newuser3@foo.com");
+			userToClone.put("FirstName", "bob");
+			userToClone.put("LastName", "the builder");
+			userToClone.put("Email", "simon@fell.com");
+			userToClone.remove("CommunityNickname");
+			userToClone.remove("attributes");
+			userToClone.remove("Id");
+			
+			Map<String, Object> desc = salesforce.getJson(new URI("sobjects/user/describe"), Map.class);
+			List<Map<String, Object>> fields = (List<Map<String, Object>>)desc.get("fields");
+			for (Map<String, Object> fieldProps : fields) {
+				if ((Boolean)fieldProps.get("createable")) continue;
+				userToClone.remove(fieldProps.get("name"));
+			}
+			
+			Log.i("user", userToClone.toString());
+			salesforce.postSObjectJson("user", userToClone);
+			return null;
+		}
+		
+		@Override
+		protected void handleResult(String res) {
+			
+		}
+	}
+	
 	/** background task to toggle the IsActive flag on the User */
 	private class SetActiveTask extends ApiAsyncTask<Boolean, Void> {
 

@@ -39,6 +39,8 @@
 	<string name="enabled">Is Active</string>
 	<string name="active_updated">Active state updated</string>
 	
+	<string name="clone_user">Clone user</string>
+
 	<!-- list menu -->
 	<string name="logout">Logout</string>
 </resources>

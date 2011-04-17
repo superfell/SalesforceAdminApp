@@ -72,6 +72,19 @@ public class SalesforceApi extends Http {
 		return userSoqlQuery(soql);
 	}
 
+	/** makes a POST request to create an SObject */
+	public SaveResult postSObjectJson(String type, final Map<String, Object> props) throws IOException {
+		ContentProducer json = new ContentProducer() {
+			public void writeTo(OutputStream os) throws IOException {
+				mapper.writeValue(os, props);
+			}
+		};
+		URI uri = restRoot.resolve("sobjects/" + type);
+		EntityTemplate jsonEntity = new EntityTemplate(json);
+		jsonEntity.setContentType("application/json");
+		return postWithJsonResponse(uri, jsonEntity, getStandardHeaders(), SaveResult.class);
+	}
+
 	/** makes a PATCH request to update an SObject */
 	public void patchSObjectJson(String type, String id, final Map<String, Object> props) throws IOException {
 		ContentProducer json = new ContentProducer() {
@@ -157,7 +170,9 @@ public class SalesforceApi extends Http {
 		return headers;
 	}
 	
-	protected <T> T getJson(URI uri, Class<T> responseClz) throws IOException {
+	public <T> T getJson(URI uri, Class<T> responseClz) throws IOException {
+		if (!uri.isAbsolute())
+			uri = restRoot.resolve(uri);
 		return this.getWithJsonResponse(uri, getStandardHeaders(), responseClz);
 	}
 	

@@ -53,6 +53,13 @@ public class Http {
 		return addHeadersAndExecute(post, httpHeaders, responseClz);
 	}
 
+	/** make a POST request with a set of form params, and parse the response JSON payload */
+	public <T> T postWithJsonResponse(URI uri, HttpEntity postEntity, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
+		HttpPost post = new HttpPost(uri);
+		post.setEntity(postEntity);
+		return addHeadersAndExecute(post, httpHeaders, responseClz);
+	}
+
 	/** make a PATCH request with a request body, and parse the JSON response */
 	public <T> T patchWithJsonResponse(URI uri, HttpEntity requestBody, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
 		HttpPatch patch = new HttpPatch(uri);
