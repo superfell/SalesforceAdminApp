@@ -7,17 +7,18 @@ import java.util.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.*;
+import android.os.Bundle;
 import android.widget.Toast;
 
+import com.pocketsoap.admin.ApiAsyncTask.ActivityCallbacks;
 import com.pocketsoap.salesforce.*;
+import com.pocketsoap.salesforce.OAuth2.TokenResponse;
 
 /** This is the Boot/Loader activity it, checks for a saved refresh token, generates a sid, or if that fails, starts the oauth flow */
-public class Boot extends Activity {
+public class Boot extends Activity implements ActivityCallbacks {
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -44,43 +45,28 @@ public class Boot extends Activity {
 	public void onResume() {
 		super.onResume();
 		// start validating the cached ref token.
-		TokenRefresher tr = new TokenRefresher();
+		TokenRefresherTask tr = new TokenRefresherTask(this);
 		tr.execute(tokenStore.getRefreshToken(), tokenStore.getAuthServer());
 	}
 
 	/** background task that calls the OAuth Token service to get a new access token using the refresh token */
-	private class TokenRefresher extends AsyncTask<String, Void, TokenResponse> {
+	private class TokenRefresherTask extends ApiAsyncTask<String, TokenResponse> {
+
+		TokenRefresherTask(ActivityCallbacks activity) {
+			super(activity);
+		}
 
 		@Override
-		protected TokenResponse doInBackground(String... params) {
-			try {
-				return refreshToken(params[0], params[1]);
-			} catch (Exception ex) {
-				exception = ex;
-			}
-			return null;
+		protected TokenResponse doApiCall(String... params) throws Exception {
+			return new OAuth2().refreshToken(params[0], params[1]);
 		}
-		
-		private Exception exception;
-		
-		private TokenResponse refreshToken(String token, String authHost) throws URISyntaxException, ClientProtocolException, IOException {
-			URI tkn = new URI(authHost).resolve("/services/oauth2/token"); 
-			Http http = new Http();
-			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("grant_type", "refresh_token"));
-			params.add(new BasicNameValuePair("refresh_token", token));
-			params.add(new BasicNameValuePair("format", "json"));
-			params.add(new BasicNameValuePair("client_id", Login.CLIENT_ID));
-			TokenResponse tr = http.postWithJsonResponse(tkn, params, null, TokenResponse.class);
-			return tr;
-		}
-		
-		protected void onPostExecute(TokenResponse result) {
-			if (exception != null || result.error != null) {
-				showTokenError(result, exception);
-			} else {
+
+		@Override
+		protected void handleResult(TokenResponse result) {
+			if (result.error != null)
+				showTokenError(result, null);
+			else
 				startUserListActivity(result);
-			}
 		}
 	}
 
@@ -99,14 +85,12 @@ public class Boot extends Activity {
 		startActivity(i);
 		finish();
 	}
-	
-    @JsonIgnoreProperties(ignoreUnknown=true)
-	static class TokenResponse {
-    	public String error;
-    	public String error_description;
-        public String refresh_token;
-        public String access_token;
-        public String instance_url;
-        public String id;
+
+	public void setBusy(boolean b) {
+		// we already have a big spinner, don't need anything else
+	}
+
+	public void showError(Exception ex) {
+		showTokenError(null, ex);
 	}
 }
