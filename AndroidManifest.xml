@@ -25,9 +25,9 @@
 
         <activity android:name=".UserListActivity" />
 
-        <activity android:name="UserDetailActivity" />
+        <activity android:name=".UserDetailActivity" />
 
-        <activity android:name="UserCloneActivity" />
+        <activity android:name=".UserCloneActivity" />
 
     </application>
 
