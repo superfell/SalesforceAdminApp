@@ -22,19 +22,22 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
         getWindow().requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		setContentView(R.layout.user_admin);
+		setContentView(R.layout.user_list);
 		search = (EditText)findViewById(R.id.search_text);
 		search.setOnEditorActionListener(this);
+		emptyText = (TextView)findViewById(android.R.id.empty);
 	}
 
 	private SalesforceApi salesforce;
 	private EditText search;
+	private TextView emptyText;
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		try {
 			salesforce = new SalesforceApi(getIntent());
+			emptyText.setText(getString(R.string.loading));
 			startFetchUsers(search.getText().toString());
 		} catch (URISyntaxException e) {
 			showError(e);
@@ -89,6 +92,8 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	private <T> void bindUserList(List<User> users) {
 		UserListAdapter a = new UserListAdapter(this, R.layout.user_row, users);
 		this.setListAdapter(a);
+		if (users.size() == 0)
+			emptyText.setText(getString(R.string.no_results));
 	}
 	
 	// Adapter/Binder that renders the list view rows.

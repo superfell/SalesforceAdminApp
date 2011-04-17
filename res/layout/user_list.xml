@@ -5,18 +5,25 @@
     android:layout_height="fill_parent"
 >
 
-	<EditText
-		android:id="@+id/search_text"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/search_hint"
-		android:lines="1"
-		android:maxLines="1"
-		android:inputType="textFilter"
-		android:imeOptions="actionSearch"
-		android:layout_margin="4dp"
-	/>
-	
+	<LinearLayout
+    	android:orientation="vertical"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:background="@drawable/search_background"
+	>
+		<EditText
+			android:id="@+id/search_text"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/search_hint"
+			android:lines="1"
+			android:maxLines="1"
+			android:inputType="textFilter"
+			android:imeOptions="actionSearch"
+			android:layout_margin="6dp"
+		/>
+	</LinearLayout>
+		
 	<ListView android:id="@id/android:list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
@@ -28,7 +35,8 @@
 		android:id="@id/android:empty"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:gravity="center"
+		android:gravity="center_horizontal"
+		android:layout_marginTop="20dp"
 		android:textStyle="bold"
 		android:text="@string/loading"
 	/>
