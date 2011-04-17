@@ -16,11 +16,12 @@ import android.widget.TextView.OnEditorActionListener;
 import com.pocketsoap.salesforce.*;
 
 /** the user list, this defaults to showing the recent users, and allows for a search */
-public class UserListActivity extends ListActivity implements OnEditorActionListener, ApiAsyncTask.ActivityCallbacks {
+public class UserListActivity extends ListActivity implements OnEditorActionListener {
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		helper = new ActivityHelper(this);
         getWindow().requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.user_list);
 		search = (EditText)findViewById(R.id.search_text);
@@ -28,6 +29,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 		emptyText = (TextView)findViewById(android.R.id.empty);
 	}
 
+	private ActivityHelper helper;
 	private SalesforceApi salesforce;
 	private EditText search;
 	private TextView emptyText;
@@ -40,7 +42,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 			emptyText.setText(getString(R.string.loading));
 			startFetchUsers(search.getText().toString());
 		} catch (URISyntaxException e) {
-			showError(e);
+			helper.showError(e);
 		}
 	}
 	
@@ -64,17 +66,6 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
     	return super.onMenuItemSelected(featureId, item);
     }
     
-	public void showError(Exception ex) {
-        Toast.makeText(
-                this, 
-                getString(R.string.api_failed, ex.getMessage()),
-                Toast.LENGTH_LONG ).show();
-	}
-	
-	public void setBusy(boolean b) {
-		setProgressBarIndeterminateVisibility(b);
-	}
-
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		// the user tapped a row in the list, serialize up the data for that row, and star the detail page activity
@@ -143,7 +134,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
 	}
 	
 	protected void startFetchUsers(String searchTerm) {
-		UserSearchTask t = new UserSearchTask(this);
+		UserSearchTask t = new UserSearchTask(helper);
 		t.execute(searchTerm);
 	}
 	

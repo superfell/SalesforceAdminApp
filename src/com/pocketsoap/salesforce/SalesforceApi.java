@@ -158,7 +158,19 @@ public class SalesforceApi extends Http {
 	}
 	
 	protected void handleErrorResponse(HttpResponse resp) throws IOException {
+		int sc = resp.getStatusLine().getStatusCode();
+		// It'd be better to spot this, and refresh the token, and retry the request, but i ran out of time.
+		if (sc == HttpStatus.SC_UNAUTHORIZED) throw new MissingSessionException();
 		List<Error> errors = mapper.readValue(resp.getEntity().getContent(), new TypeReference<List<Error>>() {});
 		throw new IOException(errors.get(0).message);
+	}
+	
+	public static class MissingSessionException extends IOException {
+		
+		private static final long serialVersionUID = 1L;
+
+		MissingSessionException() {
+			super("Session expired");
+		}
 	}
 }

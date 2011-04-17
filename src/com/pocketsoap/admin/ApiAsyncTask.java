@@ -15,7 +15,7 @@ abstract class ApiAsyncTask<ParamType, ResultType> extends AsyncTask<ParamType, 
 		this.activity = activity;
 	}
 
-	private final ActivityCallbacks activity;
+	protected final ActivityCallbacks activity;
 	private Exception exception;
 	
 	@Override

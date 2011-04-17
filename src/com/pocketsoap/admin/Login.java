@@ -4,14 +4,11 @@ package com.pocketsoap.admin;
 import java.util.*;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.webkit.*;
-
-import com.pocketsoap.salesforce.SalesforceApi;
 
 /** the oauth web flow, we launch a contained webview, start the oauth flow, and wait until we see the redirect to the callback uri */
 public class Login extends Activity {
@@ -29,6 +26,7 @@ public class Login extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        helper = new ActivityHelper(this);
         getWindow().requestFeature(Window.FEATURE_PROGRESS);
         setContentView(R.layout.webview);
         webview = (WebView)findViewById(R.id.web_view);
@@ -37,6 +35,7 @@ public class Login extends Activity {
         webview.setWebViewClient(new LoginWebViewClient());
     }
 
+    private ActivityHelper helper;
     private WebView webview;
     private String loginHost;
     
@@ -81,7 +80,8 @@ public class Login extends Activity {
     
     // called when the webview see's our callback_uri try to get loaded.
     private void authDone(Uri callbackUri) {
-    	// parse info out of fragment
+    	// parse info out of fragment, oauth2 uses a queryString encoded variables behind the fragement
+    	// which is none standard, so we need to parse it out into the set of named parameters ourself.
     	String frag = callbackUri.getEncodedFragment();
     	String [] params = frag.split("&");
     	Map<String, String> values = new HashMap<String,String>();
@@ -95,11 +95,7 @@ public class Login extends Activity {
     	new RefreshTokenStore(this).saveToken(values.get("refresh_token"), loginHost);
     	
     	// launch the user list activity
-    	Intent i = new Intent(this, UserListActivity.class);
-    	i.putExtra(SalesforceApi.EXTRA_SID, values.get("access_token"));
-    	i.putExtra(SalesforceApi.EXTRA_SERVER, values.get("instance_url"));
-    	startActivity(i);
-    	finish();
+    	helper.startUserListActivity(values.get("access_token"), values.get("instance_url"));
     }
 
     /** routes progress callbacks from the webview, to the progress bar in the activity title */

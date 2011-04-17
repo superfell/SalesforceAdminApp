@@ -1,7 +1,7 @@
 package com.pocketsoap.admin;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -16,89 +16,90 @@ import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.*;
 
-import com.pocketsoap.admin.ApiAsyncTask.ActivityCallbacks;
 import com.pocketsoap.salesforce.*;
 
 /** Activity that is the user detail page, where they can do a reset password, toggle isActive etc */
-public class UserDetailActivity extends Activity implements ActivityCallbacks {
+public class UserDetailActivity extends Activity {
 
 	static final String EXTRA_USER_JSON = "user_json";
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		helper = new ActivityHelper(this);
         getWindow().requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
 		try {
 			this.user = new ObjectMapper().readValue(getIntent().getStringExtra(EXTRA_USER_JSON), User.class);
 			this.salesforce = new SalesforceApi(getIntent());
 		} catch (IOException e) {
-			showError(e);
+			helper.showError(e);
 		} catch (URISyntaxException e) {
-			showError(e);
+			helper.showError(e);
 		}
-		
 		setContentView(R.layout.user_detail);
-		setText(R.id.detail_name, user.Name);
-		setText(R.id.detail_username, user.Username);
-		setText(R.id.detail_title, user.Title);
-		
-		setText(R.id.contact_email, user.Email);
-		setText(R.id.contact_phone, user.Phone);
-		setText(R.id.contact_mobile, user.MobilePhone);
-		if (user.MobilePhone != null && user.MobilePhone.length() > 0) {
-			SpannableStringBuilder b = new SpannableStringBuilder(user.MobilePhone);
-			b.setSpan(new URLSpan("smsto:" + user.MobilePhone), 0, user.MobilePhone.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			setText(R.id.contact_mobile_text, b).setMovementMethod(LinkMovementMethod.getInstance());
-		}
-		resetPasswordButton = (Button)findViewById(R.id.detail_reset_pwd);
-		isActive = (CheckBox)findViewById(R.id.detail_enabled);
-		isActive.setChecked(user.IsActive);
-		isActive.setOnClickListener(new ToggleActive());
-		
-		// sigh, Android 2.1's SSL handling is not compatible with the way the SSL certs are setup on *.content.force.com
-		// so, we can't load the user photo's if we're on 2.1
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			// the default person image is https://blah/.../005/T but we don't want to bother fetching that, we'll just use our local default instead.
-			if (user.SmallPhotoUrl != null && user.SmallPhotoUrl.length() > 0 && !user.SmallPhotoUrl.endsWith("/005/T")) {
-				PhotoLoaderTask photoLoader = new PhotoLoaderTask(this);
-				photoLoader.execute(user.SmallPhotoUrl);
-			}
-		}
+		bindUi();
 	}
 	
+	private ActivityHelper helper;
 	private Button resetPasswordButton;
 	private CheckBox isActive;
 	private SalesforceApi salesforce;
 	private User user;
 
+	// take all the data from the User object, and bind into the relevant parts of the UI
+	private void bindUi() {
+		// header section
+		setText(R.id.detail_name, user.Name);
+		setText(R.id.detail_username, user.Username);
+		setText(R.id.detail_title, user.Title);
+		
+		// contact section
+		setText(R.id.contact_email, user.Email);
+		setText(R.id.contact_phone, user.Phone);
+		setText(R.id.contact_mobile, user.MobilePhone);
+
+		// no auto link for SMS, so we need to build our own URLSpan for it.
+		if (user.MobilePhone != null && user.MobilePhone.length() > 0) {
+			SpannableStringBuilder b = new SpannableStringBuilder(user.MobilePhone);
+			b.setSpan(new URLSpan("smsto:" + user.MobilePhone), 0, user.MobilePhone.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			setText(R.id.contact_mobile_text, b).setMovementMethod(LinkMovementMethod.getInstance());
+		}
+		
+		//action section
+		resetPasswordButton = (Button)findViewById(R.id.detail_reset_pwd);
+		isActive = (CheckBox)findViewById(R.id.detail_enabled);
+		isActive.setChecked(user.IsActive);
+		isActive.setOnClickListener(new ToggleActive());
+
+		// user photo
+		// sigh, Android 2.1's SSL handling is not compatible with the way the SSL certs are setup on *.content.force.com
+		// so, we can't load the user photo's if we're on 2.1
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			// the default person image is https://blah/.../005/T but we don't want to bother fetching that, we'll just use our local default instead.
+			if (user.SmallPhotoUrl != null && user.SmallPhotoUrl.length() > 0 && !user.SmallPhotoUrl.endsWith("/005/T")) {
+				PhotoLoaderTask photoLoader = new PhotoLoaderTask(helper);
+				photoLoader.execute(user.SmallPhotoUrl);
+			}
+		}
+	}
+	
 	private TextView setText(int textId, CharSequence txt) {
 		TextView tv = (TextView)findViewById(textId);
 		tv.setText(txt);
 		return tv;
 	}
     
-	public void showError(Exception ex) {
-        Toast.makeText(
-                this, 
-                getString(R.string.api_failed, ex.getMessage()),
-                Toast.LENGTH_LONG ).show();
-	}
-	
-	public void setBusy(boolean b) {
-		setProgressBarIndeterminateVisibility(b);
-	}
-
 	/** called when the user taps the reset password button */
 	public void resetPasswordClicked(View v) {
-		ResetPasswordTask t = new ResetPasswordTask(this);
+		ResetPasswordTask t = new ResetPasswordTask(helper);
 		t.execute(user.Id);
 	}
 
 	/** called when the user taps the IsActive checkbox */
 	private class ToggleActive implements OnClickListener {
 		public void onClick(View v) {
-			SetActiveTask t = new SetActiveTask(UserDetailActivity.this);
+			SetActiveTask t = new SetActiveTask(helper);
 			t.execute(!user.IsActive);
 		}
 	}
@@ -128,6 +129,15 @@ public class UserDetailActivity extends Activity implements ActivityCallbacks {
 		protected void onPostExecute(Void result) {
 			isActive.setEnabled(true);
 			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void handleError(Exception exception) {
+			// the Checkbox will of toggled its state automatically
+			// but the API change didn't go through so we need to
+			// put the checkbox back
+			isActive.setChecked(user.IsActive);
+			super.handleError(exception);
 		}
 
 		@Override
