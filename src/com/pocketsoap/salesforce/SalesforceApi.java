@@ -153,7 +153,6 @@ public class SalesforceApi extends Http {
 	public byte [] getBinaryData(String uri) throws IOException, URISyntaxException {
 		// see http://blog.sforce.com/sforce/2011/03/accessing-chatter-user-pics.html
 		URI withSid = new URI(uri + "?oauth_token=" + Uri.encode(sessionId));
-		Log.i("GET", withSid.toString());
 		HttpGet get = new HttpGet(withSid);
 		HttpResponse res = client.execute(get);
 		if (res.getStatusLine().getStatusCode() != HttpStatus.SC_OK)

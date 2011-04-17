@@ -13,10 +13,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.*;
-import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import android.util.Log;
 
 /** 
  * Wrapper for basic HTTP/JSON operations.
@@ -47,13 +44,10 @@ public class Http {
 
 	/** make a POST request with a set of form params, and parse the response JSON payload */
 	public <T> T postWithJsonResponse(URI uri, List<NameValuePair> params, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
-		HttpPost post = new HttpPost(uri);
-		HttpEntity e = new UrlEncodedFormEntity(params, "UTF-8");
-		post.setEntity(e);
-		return addHeadersAndExecute(post, httpHeaders, responseClz);
+		return postWithJsonResponse(uri, new UrlEncodedFormEntity(params, "UTF-8"), httpHeaders, responseClz);
 	}
 
-	/** make a POST request with a set of form params, and parse the response JSON payload */
+	/** make a POST request with an HttpEntity, and parse the response JSON payload */
 	public <T> T postWithJsonResponse(URI uri, HttpEntity postEntity, Map<String, String> httpHeaders, Class<T> responseClz) throws IOException {
 		HttpPost post = new HttpPost(uri);
 		post.setEntity(postEntity);
@@ -85,9 +79,7 @@ public class Http {
 		try {
 			if (sc == HttpStatus.SC_NO_CONTENT) return null;
 			if (sc >= 400) handleErrorResponse(resp);
-			String x = EntityUtils.toString(resp.getEntity());
-			Log.i("json", x);
-			return mapper.readValue(x, responseClz);
+			return mapper.readValue(resp.getEntity().getContent(), responseClz);
 		} finally {
 			if (resp.getEntity() != null)
 				resp.getEntity().consumeContent();

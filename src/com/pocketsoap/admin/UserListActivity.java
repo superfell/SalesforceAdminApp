@@ -66,9 +66,7 @@ public class UserListActivity extends ListActivity implements OnEditorActionList
     	switch (item.getItemId()) {
     		case R.id.menu_logout:
     			new RefreshTokenStore(this).clearSavedData();
-    			Intent i = new Intent(this, Login.class);
-    			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    			startActivity(i);
+    			helper.startLoginActivity();
     			finish();
     	}
     	return super.onMenuItemSelected(featureId, item);

@@ -99,6 +99,7 @@ public class UserCloneActivity extends Activity {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		protected String doApiCall(User ... params) throws Exception {
 			User newUser = params[0];
 			URI userToCloneUri = new URI(newUser.attributes.url);

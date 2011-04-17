@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.xml.sax.*;
 
+/** parses one or more SaveResults from a soap response */
 public class SaveResultHandler extends SoapFaultHandler {
 
 	private List<SaveResult> results = new ArrayList<SaveResult>();
