@@ -22,7 +22,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Login" />
+        <activity android:name=".Login"
+        		  android:configChanges="orientation|keyboardHidden"
+       	/>
 
         <activity android:name=".UserListActivity" />
 
