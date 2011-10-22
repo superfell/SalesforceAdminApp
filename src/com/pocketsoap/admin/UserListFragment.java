@@ -91,7 +91,7 @@ public class UserListFragment extends ListFragment implements OnEditorActionList
 		Intent d = new Intent(getActivity(), UserDetailActivity.class);
 		d.putExtras(getActivity().getIntent());
 		try {
-			d.putExtra(UserDetailActivity.EXTRA_USER_JSON, new ObjectMapper().writeValueAsString(v.getTag()));
+			d.putExtra(UserDetailFragment.EXTRA_USER_JSON, new ObjectMapper().writeValueAsString(v.getTag()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
