@@ -214,18 +214,6 @@
 					android:layout_margin="5dp"
 				/>
 			</TableRow>
-			<TableRow android:layout_marginTop="5dp">
-
-				<Button
-					android:id="@+id/clone_user"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="12dp"
-					android:text="@string/clone_user"
-					android:onClick="cloneUserClicked"
-					android:layout_margin="5dp"
-				/>
-			</TableRow>
 		</TableLayout>
 	
 	</RelativeLayout>
