@@ -97,14 +97,10 @@ public class UserDetailActivity extends Activity {
 		isActive.setOnClickListener(new ToggleActive());
 
 		// user photo
-		// sigh, Android 2.1's SSL handling is not compatible with the way the SSL certs are setup on *.content.force.com
-		// so, we can't load the user photo's if we're on 2.1
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			// the default person image is https://blah/.../005/T but we don't want to bother fetching that, we'll just use our local default instead.
-			if (user.SmallPhotoUrl != null && user.SmallPhotoUrl.length() > 0 && !user.SmallPhotoUrl.endsWith("/005/T")) {
-				PhotoLoaderTask photoLoader = new PhotoLoaderTask(helper);
-				photoLoader.execute(user.SmallPhotoUrl);
-			}
+		// the default person image is https://blah/.../005/T but we don't want to bother fetching that, we'll just use our local default instead.
+		if (user.SmallPhotoUrl != null && user.SmallPhotoUrl.length() > 0 && !user.SmallPhotoUrl.endsWith("/005/T")) {
+			PhotoLoaderTask photoLoader = new PhotoLoaderTask(helper);
+			photoLoader.execute(user.SmallPhotoUrl);
 		}
 	}
 	
