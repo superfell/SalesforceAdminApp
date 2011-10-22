@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Salesforce Admin 2 Go</string>
+    <string name="app_name">Admin 2 Go</string>
+    <string name="app_name_full">Admin 2 Go for Salesforce</string>
 
     <!--  loading screen -->
-    <string name="boot_1">Salesforce Admin 2 Go</string>
+    <string name="boot_1">Admin 2 Go for Salesforce</string>
     <string name="boot_2">Authenticating</string>
     <string name="boot_3">Please wait...</string>
     <string name="auth_failed">authentication failed : %s</string>
@@ -11,7 +12,7 @@
     <!-- login menu -->
     <string name="login_prod">Login to production</string>
     <string name="login_test">Login to sandbox</string>
-	<string name="login_title">Salesforce Admin 2 Go : %s</string>
+	<string name="login_title">Admin 2 Go for Salesforce : %s</string>
 	<string name="login_prod_name">Production</string>
 	<string name="login_test_name">Sandbox</string>
 
@@ -39,17 +40,6 @@
 	<string name="enabled">Is Active</string>
 	<string name="active_updated">Active state updated</string>
 	
-	<string name="clone_user">Clone user</string>
-
-	<!--  clone -->
-	<string name="clone_username">New username</string>
-	<string name="clone_firstname">First name</string>
-	<string name="clone_lastname">Last name</string>
-	<string name="clone_email">Email</string>
-	<string name="clone_create">Create User</string>
-	<string name="clone_done">Successfully cloned user</string>
-	<string name="clone_validation_err">Must supply new username, Last name and email address</string>
-
 	<!-- list menu -->
 	<string name="logout">Logout</string>
 </resources>
