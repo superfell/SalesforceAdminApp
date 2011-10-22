@@ -22,33 +22,25 @@
 package com.pocketsoap.admin;
 
 import android.os.Bundle;
-import android.view.*;
+import android.support.v4.app.FragmentActivity;
+import android.view.Window;
 
-/** the user list, this defaults to showing the recent users, and allows for a search */
-public class UserListActivity extends BaseFragmentActivity {
+/**
+ * Basic common stuff for a FragmentActivity, most just management of the ActivityHelper object.
+ * 
+ */
+public class BaseFragmentActivity extends FragmentActivity {
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setContentView(R.layout.user_list_a);
+		helper = new ActivityHelper(this);
+        getWindow().requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 	}
-	
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-    	switch (item.getItemId()) {
-    		case R.id.menu_logout:
-    			new RefreshTokenStore(this).clearSavedData();
-    			getActivityHelper().startLoginActivity();
-    			finish();
-    			return true;
-    	}
-    	return super.onMenuItemSelected(featureId, item);
-    }
+	private ActivityHelper helper;
+	
+	protected ActivityHelper getActivityHelper() {
+		return helper;
+	}
 }
