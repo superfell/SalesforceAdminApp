@@ -18,7 +18,7 @@
 		    android:layout_width="fill_parent" 
 		    android:layout_height="wrap_content" 
 		    android:padding="3dp"
-		    android:gravity="right"
+		    android:gravity="left"
 		    android:textColor="@color/footer_text"
 		/>
 		
@@ -49,6 +49,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:clickable="true"
+		android:choiceMode="singleChoice"
 		android:smoothScrollbar="true" 		
 		android:layout_below="@id/user_list_header"
 		android:layout_above="@id/user_list_footer"

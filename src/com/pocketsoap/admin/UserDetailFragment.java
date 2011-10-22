@@ -48,6 +48,11 @@ public class UserDetailFragment extends Fragment {
 		theView = inflater.inflate(R.layout.user_detail, container);
 		resetPasswordButton = (Button)theView.findViewById(R.id.detail_reset_pwd);
 		isActive = (CheckBox)theView.findViewById(R.id.detail_enabled);
+		resetPasswordButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				resetPasswordClicked(v);
+			}
+		});
 		userPhoto = (ImageView)theView.findViewById(R.id.detail_photo);
 		return theView;
 	}
@@ -55,8 +60,12 @@ public class UserDetailFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		setRetainInstance(true);
 		try {
-			this.user = new ObjectMapper().readValue(getActivity().getIntent().getStringExtra(EXTRA_USER_JSON), User.class);
+			String userJson = getActivity().getIntent().getStringExtra(EXTRA_USER_JSON);
+			if (userJson != null) 
+				this.user = new ObjectMapper().readValue(userJson, User.class);
+			
 			this.salesforce = new SalesforceApi(getActivity().getIntent());
 		} catch (IOException e) {
 			getActivityHelper().showError(e);
@@ -68,7 +77,8 @@ public class UserDetailFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		bindUi();
+		if (user != null)
+			bindUi();
 	}
 	
 	private View theView;
@@ -78,6 +88,11 @@ public class UserDetailFragment extends Fragment {
 	private User user;
 	private ImageView userPhoto;
 
+	void bindUser(User newUser) {
+		this.user = newUser;
+		bindUi();
+	}
+	
 	protected ActivityHelper getActivityHelper() {
 		return ((BaseFragmentActivity)getActivity()).getActivityHelper();
 	}

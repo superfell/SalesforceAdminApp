@@ -210,7 +210,6 @@
 					android:layout_height="wrap_content"
 					android:padding="12dp"
 					android:text="@string/reset_pwd"
-					android:onClick="resetPasswordClicked"
 					android:layout_margin="5dp"
 				/>
 			</TableRow>

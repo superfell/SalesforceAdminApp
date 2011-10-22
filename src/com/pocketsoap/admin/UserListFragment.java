@@ -20,13 +20,10 @@
 //
 package com.pocketsoap.admin;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
-import android.content.*;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.*;
@@ -59,7 +56,6 @@ public class UserListFragment extends ListFragment implements OnEditorActionList
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setRetainInstance(true);
 	}
 
 	@Override
@@ -87,15 +83,8 @@ public class UserListFragment extends ListFragment implements OnEditorActionList
 	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		// the user tapped a row in the list, serialize up the data for that row, and star the detail page activity
-		Intent d = new Intent(getActivity(), UserDetailActivity.class);
-		d.putExtras(getActivity().getIntent());
-		try {
-			d.putExtra(UserDetailFragment.EXTRA_USER_JSON, new ObjectMapper().writeValueAsString(v.getTag()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		startActivity(d);
+		getListView().setItemChecked(position, true);
+		((UserListActivity)getActivity()).onUserItemClick((User)v.getTag());
 	}
 
 	// build an adapter for this list of users, so they can be rendered in the list view.

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal"
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent" 
+>
+
+	<fragment
+		android:id="@+id/list_fragment"
+		android:layout_height="match_parent"
+		android:layout_width="fill_parent"
+		android:layout_weight="2"
+		android:layout_marginRight="20dp"
+		android:name="com.pocketsoap.admin.UserListFragment"
+	>
+		<!-- Preview: layout=@layout/user_list -->
+	</fragment>
+	
+	<fragment
+		android:id="@+id/detail_fragment"
+		android:layout_height="match_parent"
+		android:layout_width="fill_parent"
+		android:layout_weight="2"
+		android:name="com.pocketsoap.admin.UserDetailFragment"
+	>
+		<!-- Preview: layout=@layout/user_detail -->
+	</fragment>
+		
+</LinearLayout>

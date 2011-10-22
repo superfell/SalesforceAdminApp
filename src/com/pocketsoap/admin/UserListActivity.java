@@ -21,8 +21,15 @@
 
 package com.pocketsoap.admin;
 
+import java.io.IOException;
+
+import org.codehaus.jackson.map.ObjectMapper;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
+
+import com.pocketsoap.salesforce.User;
 
 /** the user list, this defaults to showing the recent users, and allows for a search */
 public class UserListActivity extends BaseFragmentActivity {
@@ -31,7 +38,10 @@ public class UserListActivity extends BaseFragmentActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.user_list_a);
+		detail = (UserDetailFragment)getSupportFragmentManager().findFragmentById(R.id.detail_fragment);
 	}
+	
+	private UserDetailFragment detail;
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,5 +60,25 @@ public class UserListActivity extends BaseFragmentActivity {
     			return true;
     	}
     	return super.onMenuItemSelected(featureId, item);
+    }
+    
+    // The list fragment will call this when the user selects a row.
+    void onUserItemClick(User u) {
+    	// there's a detail fragment on this layout, just pass it the user
+    	if (detail != null) {
+    		detail.bindUser(u);
+    		return;
+    	}
+    	
+		// the user tapped a row in the list, serialize up the data for that row, and star the detail page activity
+		Intent d = new Intent(this, UserDetailActivity.class);
+		d.putExtras(getIntent());
+		try {
+			d.putExtra(UserDetailFragment.EXTRA_USER_JSON, new ObjectMapper().writeValueAsString(u));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		startActivity(d);
+
     }
 }
