@@ -114,6 +114,8 @@ public class UserDetailFragment extends Fragment {
 			SpannableStringBuilder b = new SpannableStringBuilder(user.MobilePhone);
 			b.setSpan(new URLSpan("smsto:" + user.MobilePhone), 0, user.MobilePhone.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			setText(R.id.contact_mobile_text, b).setMovementMethod(LinkMovementMethod.getInstance());
+		} else {
+			setText(R.id.contact_mobile_text, "");
 		}
 		
 		//action section
@@ -125,6 +127,8 @@ public class UserDetailFragment extends Fragment {
 		if (user.SmallPhotoUrl != null && user.SmallPhotoUrl.length() > 0 && !user.SmallPhotoUrl.endsWith("/005/T")) {
 			PhotoLoaderTask photoLoader = new PhotoLoaderTask(getActivityHelper());
 			photoLoader.execute(user.SmallPhotoUrl);
+		} else {
+			this.userPhoto.setImageResource(R.drawable.ic_contact_picture);
 		}
 	}
 	
