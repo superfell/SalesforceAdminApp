@@ -54,8 +54,8 @@ public class SalesforceApi extends Http {
 	public SalesforceApi(String sid, URI instance) {
 		this.sessionId = sid;
 		this.instance = instance;
-		this.restRoot = instance.resolve("/services/data/v21.0/");
-		this.soapUri = instance.resolve("/services/Soap/u/21.0");
+		this.restRoot = instance.resolve("/services/data/v23.0/");
+		this.soapUri = instance.resolve("/services/Soap/u/23.0");
 	}
 	
 	private final String sessionId;
