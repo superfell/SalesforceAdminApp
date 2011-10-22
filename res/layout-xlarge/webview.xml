@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:background="@drawable/login_background">
+
+	<LinearLayout
+	    android:layout_width="400dp" 
+	    android:layout_height="530dp"
+	    android:layout_centerInParent="true"
+	    android:background="#445"
+		android:padding="1px"
+		>
+		
+		<WebView
+			android:id="@+id/web_view"  
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		   	android:scrollbars="none"
+		/>
+	
+	</LinearLayout>
+</RelativeLayout>
