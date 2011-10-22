@@ -18,51 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 // THE SOFTWARE.
 //
-
 package com.pocketsoap.admin;
+
+import java.io.UnsupportedEncodingException;
+import java.util.UUID;
 
 import android.content.*;
 import android.content.SharedPreferences.Editor;
+import android.util.Base64;
 
-/** helper for reading/writing the refresh token from the preferences */
-public class RefreshTokenStore {
+/**
+ * Our per device/install Id. this is encrypted with a static key, which isn't great
+ * but better than nothing. perhaps in a future version we'll allow the user to set
+ * a pin, and use that as part of the key.
+ * 
+ */
+public class DeviceId {
 
-	RefreshTokenStore(Context ctx) {
-		this.pref = ctx.getSharedPreferences("a", Context.MODE_PRIVATE);
-		this.enc = new EncryptionHelper(DeviceId.getDeviceId(ctx));
+	public static final String getDeviceId(Context ctx) {
+		try {
+			SharedPreferences sp = ctx.getApplicationContext().getSharedPreferences("did", Context.MODE_PRIVATE);
+			EncryptionHelper e = new EncryptionHelper(new String(Base64.decode("RmdpWXdicFVETnJLU0k1OUJ3V3U5cHBqRy90dDZac2FoSHI0aEZyUkNHTFF3LzhGU1hNbUI4MGYyOUc3NXN2Wg==", Base64.DEFAULT), "UTF-8"));
+			String did = sp.getString("id", null);
+			if (did != null)
+				return e.decrypt(did);
+	
+			did = UUID.randomUUID().toString();
+			Editor ed = sp.edit();
+			ed.putString("id", e.encrypt(did));
+			ed.commit();
+			return did;
+		} catch (UnsupportedEncodingException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
-	
-	private final SharedPreferences pref;
-	private final EncryptionHelper enc;
-	
-	void saveToken(String refreshToken, String authServer) {
-		Editor e = pref.edit();
-		e.putString(REF_TOKEN, enc.encrypt(refreshToken));
-		e.putString(AUTH_SERVER, enc.encrypt(authServer));
-		e.commit();
-	}
-	
-	void clearSavedData() {
-		Editor e = pref.edit();
-		e.clear();
-		e.commit();
-	}
-	
-	boolean hasSavedToken() {
-		return pref.contains(REF_TOKEN);
-	}
-	
-	String getRefreshToken() {
-		String t = pref.getString(REF_TOKEN, null);
-		return t == null ? t : enc.decrypt(t);
-	}
-	
-	String getAuthServer() {
-		String s = pref.getString(AUTH_SERVER, null);
-		return s == null ? Login.PROD_AUTH_HOST : enc.decrypt(s);
-	}
-	
-	
-    private static final String REF_TOKEN = "refresh_token";
-	private static final String AUTH_SERVER = "authentication_server";
 }
