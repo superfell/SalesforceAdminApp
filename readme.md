@@ -3,6 +3,7 @@
 This is an Android app targeted at Salesforce.com Admin, who need/want to do basic admin tasks from their phone, like reset user passwords.
 This was my CloudSpokes entry for the Android Admin App challenge http://www.cloudspokes.com//challenge_detail.html?contestID=167
 
+## Not under active development anymore. Feel free to fork and modify as you like.
 
 # Todo
 handle device rotation better on the list screen
